@@ -6,6 +6,7 @@ use crate::CommandLineError::{BuildHasJustOneArg, NoFileSpecifiedForBuild, NoSuc
 use crate::lexer::tokenizer::{LexerError, Tokenizer};
 use crate::lexer::tokens::Token;
 use crate::lexer::tokenizer::LexerErrorType::UnknownTokenError;
+use crate::lexer::tokenizer::LexerErrorType::MoreDotInANumberError;
 
 #[derive(Debug)]
 enum CommandLineError{
@@ -37,6 +38,9 @@ fn run_cli() ->Result<(),CommandLineError> {
                         match e.error_type {
                             UnknownTokenError=>{
                                 println!("Unknown token:{}!",e.wrong_token);
+                            }
+                            MoreDotInANumberError=>{
+                                println!("Cannot have more than one dot in a number:{}!",e.wrong_token)
                             }
                         }
                     }

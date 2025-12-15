@@ -1,6 +1,6 @@
-use crate::lexer::tokenizer::LexerErrorType::UnknownTokenError;
+use crate::lexer::tokenizer::LexerErrorType::{MoreDotInANumberError, UnknownTokenError};
 use crate::lexer::tokens::{Token};
-use crate::lexer::tokens::TokenKind::{CONST, DIVIDE, EOF, FN, IDENTIFIER, MINUS, PLUS, STR, TIMES, VAR};
+use crate::lexer::tokens::TokenKind::{CONST, DIVIDE, EOF, FLOAT, FN, IDENTIFIER, MINUS, NUMB, PLUS, STR, TIMES, VAR};
 
 pub struct Tokenizer {
     current_token:char,
@@ -12,11 +12,12 @@ pub struct Tokenizer {
 }
 #[derive(Debug)]
 pub enum LexerErrorType{
-    UnknownTokenError
+    UnknownTokenError,
+    MoreDotInANumberError
 }
 #[derive(Debug)]
 pub struct LexerError{
-    pub wrong_token:char,
+    pub wrong_token:String,
     pub error_type: LexerErrorType
 }
 
@@ -35,7 +36,9 @@ impl Tokenizer {
         self.current_token=self.source_text[0];
         while self.current_token!='\0' {
             match self.current_token {
-                ' ' | '\n'|'\t'=>self.advance(),
+                ' ' | '\n'|'\t'=>{
+                    self.advance();
+                    continue},
                 '+' => self.final_tokens.push(
                     Token {
                     token_kind: PLUS,
@@ -66,10 +69,15 @@ impl Tokenizer {
                         self.final_tokens.push(token);
                         continue;
                     }
+                    else if self.current_token.is_numeric() {
+                        let token = self.create_number_token()?;
+                        self.final_tokens.push(token);
+                        continue
+                    }
                     else {
                         return Err(LexerError {
                             error_type: UnknownTokenError,
-                            wrong_token: self.current_token,
+                            wrong_token: self.current_token.to_string(),
                         })
                     }
 
@@ -89,7 +97,28 @@ impl Tokenizer {
             self.current_token = self.source_text[self.token_idx];
         }
     }
+    fn create_number_token(&mut self)->Result<Token,LexerError> {
+        let mut number_buffer:String=String::new();
+        let mut dot_count:usize=0;
+        while self.current_token.is_numeric() || self.current_token=='.' {
+                if self.current_token=='.'{
+                    if dot_count <1{
+                        dot_count+=1;
+                        number_buffer.push('.')
+                    }else {
+                        return  Err(LexerError{wrong_token:number_buffer,error_type:MoreDotInANumberError});
+                    }
+                }else {
+                    number_buffer.push(self.current_token);
+                }
+            self.advance();
+        }
+        Ok(Token{
+            token_kind:if dot_count<1 {NUMB} else { FLOAT },
+            token_value:number_buffer
+        })
 
+    }
     fn create_text_token(&mut self) -> Token{
         let mut text_buffer:String = String::new();
         while self.current_token.is_alphabetic() {
