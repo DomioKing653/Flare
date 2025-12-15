@@ -1,3 +1,4 @@
+#[derive(Clone)]
 #[derive(Debug)]
 pub enum TokenKind{
     //MATH
@@ -19,7 +20,7 @@ pub enum TokenKind{
     EOF
 }
 
-
+#[derive(Clone)]
 #[derive(Debug)]
 pub struct Token{
     pub token_kind: TokenKind,

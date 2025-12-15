@@ -1,19 +1,20 @@
+
+//Mod
 mod lexer;
+mod errors;
+mod ast;
+
+//Imports
 use std::fs;
 use std::env;
-use std::fmt::Debug;
-use crate::CommandLineError::{BuildHasJustOneArg, NoFileSpecifiedForBuild, NoSuchCommand};
-use crate::lexer::tokenizer::{LexerError, Tokenizer};
+use crate::ast::parser::Parser;
+use crate::errors::lexer_errors::LexerError;
+use crate::errors::lexer_errors::LexerErrorType::{MoreDotInANumberError, UnknownTokenError};
+use crate::lexer::tokenizer::Tokenizer;
 use crate::lexer::tokens::Token;
-use crate::lexer::tokenizer::LexerErrorType::UnknownTokenError;
-use crate::lexer::tokenizer::LexerErrorType::MoreDotInANumberError;
+use crate::errors::cli_errors::CommandLineError;
+use crate::errors::cli_errors::CommandLineError::{BuildHasJustOneArg, NoFileSpecifiedForBuild, NoSuchCommand};
 
-#[derive(Debug)]
-enum CommandLineError{
-    BuildHasJustOneArg,
-    NoFileSpecifiedForBuild,
-    NoSuchCommand
-}
 fn main() {
     if let Err(e) = run_cli(){
         eprintln!("Fatal error:{:?}!",match e{
@@ -58,11 +59,13 @@ fn run_cli() ->Result<(),CommandLineError> {
 
 fn build(dir: &str)->Result<(),LexerError> {
     println!("Building {}", dir);
+    //LEXER
     let mut main_lexer:Tokenizer=Tokenizer::new(fs::read_to_string(dir).unwrap());
     let tokens :&Vec<Token> = main_lexer.tokenize()?;
     for token in tokens {
         println!("{:?}",token);
     }
-
+    //PARSER
+    let mut mainParser:Parser = Parser::new(tokens.to_vec());
     Ok(())
 }

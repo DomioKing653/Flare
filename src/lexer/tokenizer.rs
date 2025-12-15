@@ -1,4 +1,5 @@
-use crate::lexer::tokenizer::LexerErrorType::{MoreDotInANumberError, UnknownTokenError};
+use crate::errors::lexer_errors::LexerError;
+use crate::errors::lexer_errors::LexerErrorType::{MoreDotInANumberError, UnknownTokenError};
 use crate::lexer::tokens::{Token};
 use crate::lexer::tokens::TokenKind::{CONST, DIVIDE, EOF, FLOAT, FN, IDENTIFIER, MINUS, NUMB, PLUS, STR, TIMES, VAR};
 
@@ -10,16 +11,7 @@ pub struct Tokenizer {
     final_tokens:Vec<Token>,
 
 }
-#[derive(Debug)]
-pub enum LexerErrorType{
-    UnknownTokenError,
-    MoreDotInANumberError
-}
-#[derive(Debug)]
-pub struct LexerError{
-    pub wrong_token:String,
-    pub error_type: LexerErrorType
-}
+
 
 impl Tokenizer {
     pub fn new(text:String) -> Self {
@@ -106,7 +98,7 @@ impl Tokenizer {
                         dot_count+=1;
                         number_buffer.push('.')
                     }else {
-                        return  Err(LexerError{wrong_token:number_buffer,error_type:MoreDotInANumberError});
+                        return Err(LexerError{wrong_token:number_buffer,error_type:MoreDotInANumberError});
                     }
                 }else {
                     number_buffer.push(self.current_token);
@@ -117,7 +109,6 @@ impl Tokenizer {
             token_kind:if dot_count<1 {NUMB} else { FLOAT },
             token_value:number_buffer
         })
-
     }
     fn create_text_token(&mut self) -> Token{
         let mut text_buffer:String = String::new();
