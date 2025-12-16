@@ -1,10 +1,10 @@
 use crate::lexer::tokens::Token;
 
 pub enum ParserErrorType{
-
+    UnexpectedTokenAtFactor
 }
 
 pub struct ParserError{
-    error_type:ParserErrorType,
-    wrong_token:Token
+    pub error_type:ParserErrorType,
+    pub wrong_token:Token
 }

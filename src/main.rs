@@ -3,12 +3,12 @@
 mod lexer;
 mod errors;
 mod ast;
-
 //Imports
 use std::fs;
 use std::env;
 use crate::ast::parser::Parser;
 use crate::errors::lexer_errors::LexerError;
+use std::process;
 use crate::errors::lexer_errors::LexerErrorType::{MoreDotInANumberError, UnknownTokenError};
 use crate::lexer::tokenizer::Tokenizer;
 use crate::lexer::tokens::Token;
@@ -35,17 +35,7 @@ fn run_cli() ->Result<(),CommandLineError> {
                 } else if args.len() > 3 {
                     Err(BuildHasJustOneArg)
                 } else {
-                    if let Err(e) =  build(&args[2]){
-                        match e.error_type {
-                            UnknownTokenError=>{
-                                println!("Unknown token:{}!",e.wrong_token);
-                            }
-                            MoreDotInANumberError=>{
-                                println!("Cannot have more than one dot in a number:{}!",e.wrong_token)
-                            }
-                        }
-                    }
-                    Ok(())
+                    Ok(build(args[2].clone()))
                 }
             }
             "console" => {
@@ -57,15 +47,36 @@ fn run_cli() ->Result<(),CommandLineError> {
     Ok(())
 }
 
-fn build(dir: &str)->Result<(),LexerError> {
+fn build(dir: String){
     println!("Building {}", dir);
     //LEXER
     let mut main_lexer:Tokenizer=Tokenizer::new(fs::read_to_string(dir).unwrap());
-    let tokens :&Vec<Token> = main_lexer.tokenize()?;
+    let tokens :&Vec<Token> = main_lexer.tokenize().unwrap_or_else(|e| {
+        match e.error_type {
+            UnknownTokenError => {
+                println!("Unknown token:{}!", e.wrong_token);
+                process::exit(-1);
+            }
+            MoreDotInANumberError => {
+                println!("Cannot have more than one dot in a number:{}!", e.wrong_token);
+                process::exit(-1);
+            }
+        }
+    });
     for token in tokens {
         println!("{:?}",token);
     }
     //PARSER
-    let mut mainParser:Parser = Parser::new(tokens.to_vec());
-    Ok(())
+    let mut main_parser:Parser = Parser::new(tokens.to_vec());
+    let mut parsed_ast= main_parser.parse().unwrap_or_else(|e|{
+        match e.error_type {
+            crate::errors::parser_errors::ParserErrorType::UnexpectedTokenAtFactor=>{
+                println!("Unexpected token->expected value but found:{:?}",e.wrong_token.token_kind);
+                process::exit(-2);
+            }
+        }
+    });
+    println!("{:?}",parsed_ast);
+    //INTERPRETER
+    println!("{:?}",parsed_ast.visit_node());
 }

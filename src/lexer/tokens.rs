@@ -1,5 +1,4 @@
-#[derive(Clone)]
-#[derive(Debug)]
+#[derive(Debug,Clone,PartialEq)]
 pub enum TokenKind{
     //MATH
     PLUS,
