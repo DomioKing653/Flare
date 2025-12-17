@@ -3,22 +3,26 @@
 mod lexer;
 mod errors;
 mod ast;
+mod compiler;
+
 //Imports
 use std::fs;
 use std::env;
+use std::fs::File;
+use std::io::{BufWriter, Write};
 use crate::ast::parser::Parser;
-use crate::errors::lexer_errors::LexerError;
 use std::process;
+use crate::compiler::instructions::Instructions;
 use crate::errors::lexer_errors::LexerErrorType::{MoreDotInANumberError, UnknownTokenError};
 use crate::lexer::tokenizer::Tokenizer;
 use crate::lexer::tokens::Token;
 use crate::errors::cli_errors::CommandLineError;
-use crate::errors::cli_errors::CommandLineError::{BuildHasJustOneArg, NoFileSpecifiedForBuild, NoSuchCommand};
+use crate::errors::cli_errors::CommandLineError::{BuildHasJustTwoArg, NoFileSpecifiedForBuild, NoSuchCommand};
 
 fn main() {
     if let Err(e) = run_cli(){
         eprintln!("Fatal error:{:?}!",match e{
-            BuildHasJustOneArg=>"Build command has just one argument",
+            BuildHasJustTwoArg =>"Build command has just two arguments",
             NoFileSpecifiedForBuild=>"No file specified for build",
             NoSuchCommand=>"No such command",
         }.to_string());
@@ -30,12 +34,12 @@ fn run_cli() ->Result<(),CommandLineError> {
     if args.len() > 1 {
         return match args[1].as_str() {
             "build" => {
-                if args.len() <= 2 {
+                if args.len() <= 3 {
                     Err(NoFileSpecifiedForBuild)
-                } else if args.len() > 3 {
-                    Err(BuildHasJustOneArg)
+                } else if args.len() > 4 {
+                    Err(BuildHasJustTwoArg)
                 } else {
-                    Ok(build(args[2].clone()))
+                    Ok(build(args[2].clone(),args[3].clone()))
                 }
             }
             "console" => {
@@ -47,7 +51,7 @@ fn run_cli() ->Result<(),CommandLineError> {
     Ok(())
 }
 
-fn build(dir: String){
+fn build(dir: String, out:String){
     println!("Building {}", dir);
     //LEXER
     let mut main_lexer:Tokenizer=Tokenizer::new(fs::read_to_string(dir).unwrap());
@@ -68,15 +72,37 @@ fn build(dir: String){
     }
     //PARSER
     let mut main_parser:Parser = Parser::new(tokens.to_vec());
-    let mut parsed_ast= main_parser.parse().unwrap_or_else(|e|{
+    let parsed_ast= main_parser.parse().unwrap_or_else(|e|{
         match e.error_type {
-            crate::errors::parser_errors::ParserErrorType::UnexpectedTokenAtFactor=>{
+            errors::parser_errors::ParserErrorType::UnexpectedTokenAtFactor=>{
                 println!("Unexpected token->expected value but found:{:?}",e.wrong_token.token_kind);
                 process::exit(-2);
             }
         }
     });
     println!("{:?}",parsed_ast);
-    //INTERPRETER
-    println!("{:?}",parsed_ast.visit_node());
+    //VM
+    let byte_code:&mut Vec<Instructions> = &mut vec![];
+    parsed_ast.compile(byte_code);
+    println!("{:?}",byte_code);
+    compile_to_exec(out, byte_code).expect("TODO: panic message");
+}
+
+fn compile_to_exec(file_name:String,byte_code:&mut Vec<Instructions>)->std::io::Result<()>{
+    let file = File::create(file_name)?;
+    let mut writer = BufWriter::new(file);
+    for instr in byte_code {
+        match instr {
+            Instructions::PushNumber(n) => {
+                writer.write_all(&[0u8])?; // opcode pro PushNumber
+                writer.write_all(&n.to_le_bytes())?;
+            }
+            Instructions::Add => writer.write_all(&[1u8])?,
+            Instructions::Sub => writer.write_all(&[2u8])?,
+            Instructions::Mul => writer.write_all(&[3u8])?,
+            Instructions::Div => writer.write_all(&[4u8])?,
+            Instructions::Halt =>{ writer.write_all(&[255u8])?;println!("Halt")},
+        }
+    }
+    Ok(())
 }

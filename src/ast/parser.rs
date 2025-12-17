@@ -1,4 +1,5 @@
-use crate::ast::nodes::{BinaryOpNode, FloatNode, Node, NumberNode, ProgramNode, VariableAccessNode};
+use crate::ast::nodes::{BinaryOpNode, FloatNode, NumberNode, ProgramNode, VariableAccessNode};
+use crate::compiler::byte_code::Compilable;
 use crate::errors::parser_errors::ParserError;
 use crate::errors::parser_errors::ParserErrorType::UnexpectedTokenAtFactor;
 use crate::lexer::tokens::Token;
@@ -22,19 +23,19 @@ impl Parser {
     pub fn advance(&mut self){
         self.token_idx+=1;
     }
-    pub fn parse(&mut self)->Result<Box<dyn Node>,ParserError> {
+    pub fn parse(&mut self)->Result<Box<dyn Compilable>,ParserError> {
         let mut program:ProgramNode=ProgramNode::new();
         while self.current_token().token_kind!=EOF {
             program.program_nodes.push(self.parse_stmt()?)
         }
         Ok(Box::new(program))
     }
-    fn parse_stmt(&mut self)->Result<Box<dyn Node> ,ParserError>{
+    fn parse_stmt(&mut self)->Result<Box<dyn Compilable> ,ParserError>{
         match self.current_token(){
             _=>self.parse_expr()
         }
     }
-    fn parse_expr(&mut self)->Result<Box<dyn Node>,ParserError>{
+    fn parse_expr(&mut self)->Result<Box<dyn Compilable>,ParserError>{
         let mut term =self.parse_term()?;
         while self.current_token().token_kind==PLUS||self.current_token().token_kind==MINUS {
             let operator=self.current_token().token_kind.clone();
@@ -47,7 +48,7 @@ impl Parser {
         }
         Ok(term)
     }
-    fn parse_term(&mut self)->Result<Box<dyn Node>,ParserError>{
+    fn parse_term(&mut self)->Result<Box<dyn Compilable>,ParserError>{
         let mut factor =self.parser_factor()?;
         while self.current_token().token_kind==TIMES||self.current_token().token_kind==DIVIDE {
             let operator=self.current_token().token_kind.clone();
@@ -60,7 +61,7 @@ impl Parser {
         }
         Ok(factor)
     }
-    fn parser_factor(&mut self)->Result<Box<dyn Node>,ParserError>{
+    fn parser_factor(&mut self)->Result<Box<dyn Compilable>,ParserError>{
         if self.current_token().token_kind == FLOAT {
             let value = match self.current_token().token_value.parse::<f32>() {
                 Err(_) => unreachable!(),

@@ -1,6 +1,6 @@
 #[derive(Debug)]
 pub enum CommandLineError{
-    BuildHasJustOneArg,
+    BuildHasJustTwoArg,
     NoFileSpecifiedForBuild,
     NoSuchCommand
 }
