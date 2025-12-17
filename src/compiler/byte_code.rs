@@ -4,6 +4,7 @@ use crate::ast::nodes::{BinaryOpNode, FloatNode, NumberNode, ProgramNode, Variab
 use crate::compiler::instructions::Instructions;
 use crate::compiler::instructions::Instructions::{Add, Div, Halt, Mul, Sub};
 use crate::lexer::tokens::TokenKind;
+
 pub trait Compilable : fmt::Debug{
     fn compile(&self,out: &mut Vec<Instructions>);
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result;

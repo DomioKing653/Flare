@@ -4,6 +4,7 @@ mod lexer;
 mod errors;
 mod ast;
 mod compiler;
+mod virtual_machine;
 
 //Imports
 use std::fs;
@@ -18,6 +19,7 @@ use crate::lexer::tokenizer::Tokenizer;
 use crate::lexer::tokens::Token;
 use crate::errors::cli_errors::CommandLineError;
 use crate::errors::cli_errors::CommandLineError::{BuildHasJustTwoArg, NoFileSpecifiedForBuild, NoSuchCommand};
+use crate::virtual_machine::virtual_machine::VM;
 
 fn main() {
     if let Err(e) = run_cli(){
@@ -29,26 +31,40 @@ fn main() {
     }
 }
 
-fn run_cli() ->Result<(),CommandLineError> {
+fn run_cli() -> Result<(), CommandLineError>{
     let args: Vec<String> = env::args().collect();
-    if args.len() > 1 {
-        return match args[1].as_str() {
-            "build" => {
-                if args.len() <= 3 {
-                    Err(NoFileSpecifiedForBuild)
-                } else if args.len() > 4 {
-                    Err(BuildHasJustTwoArg)
-                } else {
-                    Ok(build(args[2].clone(),args[3].clone()))
-                }
-            }
-            "console" => {
-                Ok(())
-            }
-            _ => Err(NoSuchCommand),
-        }
+
+    if args.len() < 2 {
+        return Err(NoSuchCommand);
     }
-    Ok(())
+
+    match args[1].as_str() {
+        "build" => {
+            if args.len() != 4 {
+                return Err(BuildHasJustTwoArg);
+            }
+            build(args[2].clone(), args[3].clone());
+            Ok(())
+        }
+
+        "run" => {
+            if args.len() != 3 {
+                return Err(NoFileSpecifiedForBuild);
+            }
+            run_code(&args[2].clone());
+            Ok(())
+        }
+
+        "exec" => {
+            if args.len() != 4 {
+                return Err(BuildHasJustTwoArg);
+            }
+            build(args[2].clone(), args[3].clone());
+            run_code(&args[3].clone());
+            Ok(())
+        }
+        _ => Err(NoSuchCommand),
+    }
 }
 
 fn build(dir: String, out:String){
@@ -105,4 +121,9 @@ fn compile_to_exec(file_name:String,byte_code:&mut Vec<Instructions>)->std::io::
         }
     }
     Ok(())
+}
+
+fn run_code(path:&str){
+    let mut vm:VM = VM::from_file(path).unwrap();
+    vm.run().unwrap()
 }
