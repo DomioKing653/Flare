@@ -1,6 +1,6 @@
 use crate::lexer::tokens::TokenKind;
 use std::fmt;
-use std::fmt::Formatter;
+use std::fmt::{Debug, Formatter};
 use crate::compiler::byte_code::Compilable;
 
 
@@ -37,7 +37,6 @@ impl fmt::Debug for BinaryOpNode {
     }
 }
 
-
 /*
 Number Node
 */
@@ -50,7 +49,9 @@ impl fmt::Debug for NumberNode {
         self.fmt_with_indent(f, 0)
     }
 }
-
+/*
+Float node
+*/
 pub struct FloatNode {
     pub number: f32,
 }
@@ -60,7 +61,18 @@ impl fmt::Debug for FloatNode {
         self.fmt_with_indent(f, 0)
     }
 }
+/*
+String node
+*/
 
+pub struct StringNode{
+    pub value:String
+}
+impl Debug for StringNode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        self.fmt_with_indent(f, 0)
+    }
+}
 pub struct VariableAccessNode {
     pub variable_name: String,
 }

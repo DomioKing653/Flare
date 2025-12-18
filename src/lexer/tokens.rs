@@ -5,6 +5,8 @@ pub enum TokenKind{
     MINUS,
     TIMES,
     DIVIDE,
+    LEFTPAREN,
+    RIGHTPAREN,
     //VALUES
     NUMB,
     FLOAT,

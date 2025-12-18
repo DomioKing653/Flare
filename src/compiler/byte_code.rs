@@ -1,8 +1,8 @@
 use std::fmt;
 use std::fmt::Formatter;
-use crate::ast::nodes::{BinaryOpNode, FloatNode, NumberNode, ProgramNode, VariableAccessNode};
+use crate::ast::nodes::{BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode, VariableAccessNode};
 use crate::compiler::instructions::Instructions;
-use crate::compiler::instructions::Instructions::{Add, Div, Halt, Mul, Sub};
+use crate::compiler::instructions::Instructions::{Add, Div, Halt, Mul, PushString, Sub};
 use crate::lexer::tokens::TokenKind;
 
 pub trait Compilable : fmt::Debug{
@@ -66,10 +66,19 @@ impl Compilable for ProgramNode {
 }
 
 impl Compilable for VariableAccessNode {
-    fn compile(&self, out: &mut Vec<Instructions>) {
+    fn compile(&self, _out: &mut Vec<Instructions>) {
         todo!()
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         writeln!(f, "{}Var({})", indent_fn(indent), self.variable_name)
+    }
+}
+
+impl Compilable for StringNode {
+    fn compile(&self, out: &mut Vec<Instructions>) {
+        out.push(PushString(self.value.clone()))
+    }
+    fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
+        writeln!(f, "{}String({})", indent_fn(indent), self.value)
     }
 }

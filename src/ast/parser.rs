@@ -1,9 +1,9 @@
-use crate::ast::nodes::{BinaryOpNode, FloatNode, NumberNode, ProgramNode, VariableAccessNode};
+use crate::ast::nodes::{BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode, VariableAccessNode};
 use crate::compiler::byte_code::Compilable;
 use crate::errors::parser_errors::ParserError;
-use crate::errors::parser_errors::ParserErrorType::UnexpectedTokenAtFactor;
+use crate::errors::parser_errors::ParserErrorType::{ExpectedClosingParen, UnexpectedTokenAtFactor};
 use crate::lexer::tokens::Token;
-use crate::lexer::tokens::TokenKind::{DIVIDE, EOF, FLOAT, IDENTIFIER, MINUS, NUMB, PLUS, TIMES};
+use crate::lexer::tokens::TokenKind::{DIVIDE, EOF, FLOAT, IDENTIFIER, LEFTPAREN, MINUS, NUMB, PLUS, RIGHTPAREN, STRING, TIMES};
 
 pub struct Parser{
     tokens:Vec<Token>,
@@ -92,6 +92,26 @@ impl Parser {
                     variable_name:value
                 }
             ))
+        }
+        else if self.current_token().token_kind==LEFTPAREN {
+           self.advance();
+           let value = self.parse_expr()?;
+           if self.current_token().token_kind!=RIGHTPAREN {
+                return Err(ParserError{
+                    error_type:ExpectedClosingParen,
+                    wrong_token:self.current_token().clone()
+
+                })
+           }
+            self.advance();
+            Ok(value)
+        }
+        else if self.current_token().token_kind==STRING {
+            let value = StringNode{
+                value:self.current_token().token_value.clone()
+            };
+            self.advance();
+            Ok(Box::new(value))
         }
         else {
             Err(ParserError{

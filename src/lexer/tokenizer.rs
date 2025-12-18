@@ -1,7 +1,7 @@
 use crate::errors::lexer_errors::LexerError;
 use crate::errors::lexer_errors::LexerErrorType::{MoreDotInANumberError, UnknownTokenError};
-use crate::lexer::tokens::{Token};
-use crate::lexer::tokens::TokenKind::{CONST, DIVIDE, EOF, FLOAT, FN, IDENTIFIER, MINUS, NUMB, PLUS, STR, TIMES, VAR};
+use crate::lexer::tokens::{Token, TokenKind};
+use crate::lexer::tokens::TokenKind::{CONST, DIVIDE, EOF, FLOAT, FN, IDENTIFIER, LEFTPAREN, MINUS, NUMB, PLUS, RIGHTPAREN, STR, TIMES, VAR};
 
 pub struct Tokenizer {
     current_token:char,
@@ -31,10 +31,27 @@ impl Tokenizer {
                 ' ' | '\n'|'\t'=>{
                     self.advance();
                     continue},
+                '"'=>{
+                    let token =self.read_string();
+                    self.final_tokens.push(token);
+                    continue;
+                },
                 '+' => self.final_tokens.push(
                     Token {
                     token_kind: PLUS,
                     token_value: self.current_token.to_string(),
+                    }
+                ),
+                '(' => self.final_tokens.push(
+                    Token {
+                        token_kind: LEFTPAREN,
+                        token_value: self.current_token.to_string(),
+                    }
+                ),
+                ')' => self.final_tokens.push(
+                    Token {
+                        token_kind: RIGHTPAREN,
+                        token_value: self.current_token.to_string(),
                     }
                 ),
                 '-'=> self.final_tokens.push(
@@ -142,6 +159,21 @@ impl Tokenizer {
                     token_kind:IDENTIFIER,
                     token_value:text_buffer
                 }
+        }
+    }
+    fn read_string(&mut self) -> Token {
+        self.advance(); // přeskočí "
+
+        let mut value = String::new();
+        while self.current_token != '"' {
+            value.push(self.current_token);
+            self.advance();
+        }
+
+        self.advance();
+        Token {
+            token_kind: TokenKind::STRING,
+            token_value: value,
         }
     }
 }

@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "Flare"
+name = "flarec"
 version = "0.0.2"

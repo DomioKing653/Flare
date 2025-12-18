@@ -1,73 +1,17 @@
-
-//Mod
-mod lexer;
-mod errors;
-mod ast;
-mod compiler;
-mod virtual_machine;
-
-//Imports
-use std::fs;
-use std::env;
+use std::{fs, process};
 use std::fs::File;
 use std::io::{BufWriter, Write};
+use std::path::Path;
 use crate::ast::parser::Parser;
-use std::process;
 use crate::compiler::instructions::Instructions;
 use crate::errors::lexer_errors::LexerErrorType::{MoreDotInANumberError, UnknownTokenError};
+use crate::errors::parser_errors;
 use crate::lexer::tokenizer::Tokenizer;
 use crate::lexer::tokens::Token;
-use crate::errors::cli_errors::CommandLineError;
-use crate::errors::cli_errors::CommandLineError::{BuildHasJustTwoArg, NoFileSpecifiedForBuild, NoSuchCommand};
 use crate::virtual_machine::virtual_machine::VM;
 
-fn main() {
-    if let Err(e) = run_cli(){
-        eprintln!("Fatal error:{:?}!",match e{
-            BuildHasJustTwoArg =>"Build command has just two arguments",
-            NoFileSpecifiedForBuild=>"No file specified for build",
-            NoSuchCommand=>"No such command",
-        }.to_string());
-    }
-}
-
-fn run_cli() -> Result<(), CommandLineError>{
-    let args: Vec<String> = env::args().collect();
-
-    if args.len() < 2 {
-        return Err(NoSuchCommand);
-    }
-
-    match args[1].as_str() {
-        "build" => {
-            if args.len() != 4 {
-                return Err(BuildHasJustTwoArg);
-            }
-            build(args[2].clone(), args[3].clone());
-            Ok(())
-        }
-
-        "run" => {
-            if args.len() != 3 {
-                return Err(NoFileSpecifiedForBuild);
-            }
-            run_code(&args[2].clone());
-            Ok(())
-        }
-
-        "exec" => {
-            if args.len() != 4 {
-                return Err(BuildHasJustTwoArg);
-            }
-            build(args[2].clone(), args[3].clone());
-            run_code(&args[3].clone());
-            Ok(())
-        }
-        _ => Err(NoSuchCommand),
-    }
-}
-
-fn build(dir: String, out:String){
+pub fn build(dir: String, out:String){
+    ensure_target_dir();
     println!("Building {}", dir);
     //LEXER
     let mut main_lexer:Tokenizer=Tokenizer::new(fs::read_to_string(dir).unwrap());
@@ -90,8 +34,12 @@ fn build(dir: String, out:String){
     let mut main_parser:Parser = Parser::new(tokens.to_vec());
     let parsed_ast= main_parser.parse().unwrap_or_else(|e|{
         match e.error_type {
-            errors::parser_errors::ParserErrorType::UnexpectedTokenAtFactor=>{
+            parser_errors::ParserErrorType::UnexpectedTokenAtFactor=>{
                 println!("Unexpected token->expected value but found:{:?}",e.wrong_token.token_kind);
+                process::exit(-2);
+            }
+            parser_errors::ParserErrorType::ExpectedClosingParen=>{
+                println!("Expected closing paren at:{:?}",e.wrong_token.token_value);
                 process::exit(-2);
             }
         }
@@ -101,7 +49,8 @@ fn build(dir: String, out:String){
     let byte_code:&mut Vec<Instructions> = &mut vec![];
     parsed_ast.compile(byte_code);
     println!("{:?}",byte_code);
-    compile_to_exec(out, byte_code).expect("TODO: panic message");
+    let out_path=format!("target/{}",out);
+    compile_to_exec(out_path, byte_code).expect("TODO: panic message");
 }
 
 fn compile_to_exec(file_name:String,byte_code:&mut Vec<Instructions>)->std::io::Result<()>{
@@ -117,13 +66,25 @@ fn compile_to_exec(file_name:String,byte_code:&mut Vec<Instructions>)->std::io::
             Instructions::Sub => writer.write_all(&[2u8])?,
             Instructions::Mul => writer.write_all(&[3u8])?,
             Instructions::Div => writer.write_all(&[4u8])?,
-            Instructions::Halt =>{ writer.write_all(&[255u8])?;println!("Halt")},
+            Instructions::PushString(s) =>{
+                writer.write_all(&[5u8])?;
+                let bytes = s.as_bytes();
+                writer.write_all(&(bytes.len() as u32).to_le_bytes())?;
+                writer.write_all(&s.as_bytes())?
+            },
+            Instructions::Halt =>writer.write_all(&[255u8])?,
         }
     }
     Ok(())
 }
 
-fn run_code(path:&str){
+pub fn run_code(path:&str){
     let mut vm:VM = VM::from_file(path).unwrap();
     vm.run().unwrap()
+}
+fn ensure_target_dir() {
+    let target = Path::new("target");
+    if !target.exists() {
+        fs::create_dir(target).expect("Cannot create target directory");
+    }
 }

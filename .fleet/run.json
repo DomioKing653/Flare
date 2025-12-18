@@ -1,8 +1,0 @@
-{
-    "configurations": [
-        {
-            "type": "cargo",
-            "name": "Cargo configuration"
-        }
-    ]
-}
