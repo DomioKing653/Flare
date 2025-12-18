@@ -72,6 +72,18 @@ fn compile_to_exec(file_name:String,byte_code:&mut Vec<Instructions>)->std::io::
                 writer.write_all(&(bytes.len() as u32).to_le_bytes())?;
                 writer.write_all(&s.as_bytes())?
             },
+            Instructions::LoadVar(v)=>{
+                writer.write_all(&[6u8])?;
+                let bytes = v.as_bytes();
+                writer.write_all(&(bytes.len() as u32).to_le_bytes())?;
+                writer.write_all(&v.as_bytes())?
+            },
+            Instructions::SaveVar(v)=>{
+                writer.write_all(&[6u8])?;
+                let bytes = v.as_bytes();
+                writer.write_all(&(bytes.len() as u32).to_le_bytes())?;
+                writer.write_all(&v.as_bytes())?
+            },
             Instructions::Halt =>writer.write_all(&[255u8])?,
         }
     }

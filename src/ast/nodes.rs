@@ -1,9 +1,8 @@
 use crate::lexer::tokens::TokenKind;
 use std::fmt;
-use std::fmt::{Debug, Formatter};
+use std::fmt::{Debug, Formatter, Pointer};
 use crate::compiler::byte_code::Compilable;
-
-
+use crate::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType;
 
 pub struct ProgramNode {
     pub program_nodes: Vec<Box<dyn Compilable>>,
@@ -73,6 +72,11 @@ impl Debug for StringNode {
         self.fmt_with_indent(f, 0)
     }
 }
+//VARIABLES
+/*
+Variable Access
+*/
+
 pub struct VariableAccessNode {
     pub variable_name: String,
 }
@@ -80,5 +84,18 @@ pub struct VariableAccessNode {
 impl fmt::Debug for VariableAccessNode {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         self.fmt_with_indent(f, 0)
+    }
+}
+/*
+Variable Define
+*/
+pub struct VariableDefineNode{
+    pub var_name:String,
+    pub value_type:ComptimeValueType,
+    pub value:Option<Box<dyn Compilable>>
+}
+impl Debug for VariableDefineNode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        self.fmt_with_indent(f,0)
     }
 }
