@@ -2,7 +2,8 @@ use crate::lexer::tokens::Token;
 
 pub enum ParserErrorType{
     UnexpectedTokenAtFactor,
-    ExpectedClosingParen
+    ExpectedClosingParen,
+    ExpectedId
 }
 
 pub struct ParserError{

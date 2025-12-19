@@ -44,7 +44,6 @@ impl VM {
                     1 => {
                         let right = self.pop()?;
                         let left = self.pop()?;
-
                         let result = match (left, right) {
                             (Number(a), Number(b)) => Number(a + b),
                             (StringValue(a), StringValue(b)) => StringValue(a + &b),
@@ -138,6 +137,7 @@ impl VM {
                         let var =Variable{
                             value:self.pop()?
                         };
+                        println!("Saving variable:{:?}",var);
                         self.variables.insert(
                             name,
                             var

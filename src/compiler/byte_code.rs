@@ -1,20 +1,41 @@
 use std::fmt;
 use std::fmt::Formatter;
+use std::io::Error;
 use crate::ast::nodes::{BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode, VariableAccessNode, VariableDefineNode};
+use crate::compiler::comptime_variable_checker::comptime_context::CompileContext;
+use crate::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType;
+use crate::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{Null, Number, StringValue};
 use crate::compiler::instructions::Instructions;
 use crate::compiler::instructions::Instructions::{Add, Div, Halt, LoadVar, Mul, PushString, Sub};
+use crate::errors::compiler_errors::CompileError;
 use crate::lexer::tokens::TokenKind;
 
 pub trait Compilable : fmt::Debug{
-    fn compile(&self,out: &mut Vec<Instructions>);
+    fn compile(&self,compiler:&mut Compiler)->Result<ComptimeValueType,CompileError>;
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result;
 }
 fn indent_fn(n: usize) -> String {
     "  ".repeat(n)
 }
+
+pub struct Compiler{
+    pub context:CompileContext,
+    pub out:Vec<Instructions>
+}
+
+impl Compiler {
+    pub fn new()->Self{
+        Self{
+            context:CompileContext::new(),
+            out:Vec::new()
+        }
+    }
+}
+
 impl Compilable for NumberNode{
-    fn compile(&self, out: &mut Vec<Instructions>) {
-        out.push(Instructions::PushNumber(self.number as f32))
+    fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
+        compiler.out.push(Instructions::PushNumber(self.number as f32));
+        Ok(Number)
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         writeln!(f, "{}Number({})", indent_fn(indent), self.number)
@@ -22,8 +43,9 @@ impl Compilable for NumberNode{
 }
 
 impl Compilable for FloatNode{
-    fn compile(&self, out: &mut Vec<Instructions>) {
-        out.push(Instructions::PushNumber(self.number))
+    fn compile(&self, out: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
+        out.out.push(Instructions::PushNumber(self.number));
+        Ok(Number)
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         writeln!(f, "{}Float({})", indent_fn(indent), self.number)
@@ -31,15 +53,65 @@ impl Compilable for FloatNode{
 }
 
 impl Compilable for BinaryOpNode {
-    fn compile(&self, out: &mut Vec<Instructions>) {
-        self.left.compile(out);
-        self.right.compile(out);
+    fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
+        let right = self.left.compile(compiler)?;
+        let left = self.right.compile(compiler)?;
         match self.op_tok {
-            TokenKind::PLUS =>out.push(Add),
-            TokenKind::MINUS=>out.push(Sub),
-            TokenKind::DIVIDE=>out.push(Div),
-            TokenKind::TIMES=>out.push(Mul),
-            _=> unreachable!()
+            TokenKind::PLUS => match (&left, &right) {
+                (Number, Number) => {
+                    compiler.out.push(Add);
+                    Ok(Number)
+                }
+                (StringValue, StringValue) => {
+                    compiler.out.push(Add);
+                    Ok(StringValue)
+                }
+                _ => Err(CompileError::InvalidBinaryOp {
+                    op: "+",
+                    left,
+                    right,
+                }),
+            },
+
+            TokenKind::MINUS => {
+                if let Number = right {
+                    compiler.out.push(Sub);
+                    Ok(Number)
+                } else {
+                    Err(CompileError::InvalidBinaryOp {
+                        op: "/",
+                        left,
+                        right,
+                    })
+                }
+            }
+            TokenKind::TIMES => {
+                if let Number = right {
+                    compiler.out.push(Mul);
+                    Ok(Number)
+                } else {
+                    Err(CompileError::InvalidBinaryOp {
+                        op: "/",
+                        left,
+                        right,
+                    })
+                }
+            }
+            TokenKind::DIVIDE => {
+                if let Number = right {
+                    compiler.out.push(Div);
+                    Ok(Number)
+                } else {
+                    Err(CompileError::InvalidBinaryOp {
+                        op: "/",
+                        left,
+                        right,
+                    })
+                }
+            }
+            _ => {
+                unreachable!()
+            }
         }
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
@@ -50,11 +122,12 @@ impl Compilable for BinaryOpNode {
     }
 }
 impl Compilable for ProgramNode {
-    fn compile(&self, out: &mut Vec<Instructions>) {
+    fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         for program_node in &self.program_nodes {
-            program_node.compile(out)
+            program_node.compile(compiler)?;
         }
-        out.push(Halt);
+        compiler.out.push(Halt);
+        Ok(Null)
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         writeln!(f, "{}Program", indent_fn(indent))?;
@@ -66,8 +139,9 @@ impl Compilable for ProgramNode {
 }
 
 impl Compilable for VariableAccessNode {
-    fn compile(&self, out: &mut Vec<Instructions>) {
-        out.push(LoadVar(self.variable_name.to_string()))
+    fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
+        compiler.out.push(LoadVar(self.variable_name.to_string()));
+        Ok(Null)
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         writeln!(f, "{}Var({})", indent_fn(indent), self.variable_name)
@@ -75,8 +149,9 @@ impl Compilable for VariableAccessNode {
 }
 
 impl Compilable for StringNode {
-    fn compile(&self, out: &mut Vec<Instructions>) {
-        out.push(PushString(self.value.clone()))
+    fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
+        compiler.out.push(PushString(self.value.clone()));
+        Ok(StringValue)
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         writeln!(f, "{}String({})", indent_fn(indent), self.value)
@@ -84,14 +159,15 @@ impl Compilable for StringNode {
 }
 
 impl Compilable for VariableDefineNode {
-    fn compile(&self, out: &mut Vec<Instructions>) {
+    fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         if let Some(value) = &self.value{
-            value.compile(out);
+            value.compile(compiler)?;
         }
-        out.push(Instructions::SaveVar(self.var_name.clone()))
+        compiler.out.push(Instructions::SaveVar(self.var_name.clone()));
+        Ok(Null)
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
-        write!(f, "var:{:?}=", self.value_type)?;
+        write!(f, "{}var:{:?}=", indent,self.value_type)?;
         if let Some(value) = &self.value {
             value.fmt_with_indent(f, 0)?;
         } else {

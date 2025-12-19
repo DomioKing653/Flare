@@ -1,9 +1,14 @@
-use crate::ast::nodes::{BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode, VariableAccessNode};
-use crate::compiler::byte_code::Compilable;
-use crate::errors::parser_errors::ParserError;
-use crate::errors::parser_errors::ParserErrorType::{ExpectedClosingParen, UnexpectedTokenAtFactor};
-use crate::lexer::tokens::Token;
-use crate::lexer::tokens::TokenKind::{DIVIDE, EOF, FLOAT, IDENTIFIER, LEFTPAREN, MINUS, NUMB, PLUS, RIGHTPAREN, STRING, TIMES};
+use crate::{
+    lexer::tokens::Token,
+    errors::parser_errors::ParserErrorType::{ExpectedClosingParen, UnexpectedTokenAtFactor},
+    errors::parser_errors::ParserError,
+    compiler::byte_code::Compilable,
+    ast::nodes::{BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode, VariableAccessNode},
+    lexer::tokens::TokenKind::{DIVIDE, EOF, FLOAT, IDENTIFIER, LEFTPAREN, MINUS, NUMB, PLUS, RIGHTPAREN, STRING, TIMES,VAR,CONST}
+};
+use crate::ast::nodes::VariableDefineNode;
+use crate::errors::parser_errors::ParserErrorType::ExpectedId;
+use crate::lexer::tokens::TokenKind::EQUAL;
 
 pub struct Parser{
     tokens:Vec<Token>,
@@ -31,9 +36,44 @@ impl Parser {
         Ok(Box::new(program))
     }
     fn parse_stmt(&mut self)->Result<Box<dyn Compilable> ,ParserError>{
-        match self.current_token(){
+        match self.current_token().token_kind{
+            VAR=>{
+                self.parse_var_decl_stmt()
+            }
             _=>self.parse_expr()
         }
+    }
+    fn parse_var_decl_stmt(&mut self)->Result<Box<dyn Compilable>,ParserError>{
+        let is_const:bool;
+        if self.current_token().token_kind==CONST {
+            is_const = true;
+        }else {
+            is_const =false;
+        }
+        let id:String;
+        self.advance();
+        if self.current_token().token_kind!=IDENTIFIER {
+            return Err(ParserError{
+                wrong_token:self.current_token().clone(),
+                error_type:ExpectedId
+            })
+        }else {
+            id=self.current_token().token_value.clone();
+        }
+        self.advance();
+        let value:Option<Box<dyn Compilable>>;
+        if self.current_token().token_kind==EQUAL {
+            self.advance();
+            value=Some(self.parse_expr()?);
+        }else{
+            value=None
+        }
+        Ok(Box::new(VariableDefineNode{
+            value_type:None,
+            value,
+            var_name:id,
+            is_const
+        }))
     }
     fn parse_expr(&mut self)->Result<Box<dyn Compilable>,ParserError>{
         let mut term =self.parse_term()?;

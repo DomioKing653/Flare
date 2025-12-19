@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::Path;
 use crate::ast::parser::Parser;
+use crate::compiler::byte_code::Compiler;
 use crate::compiler::instructions::Instructions;
 use crate::errors::lexer_errors::LexerErrorType::{MoreDotInANumberError, UnknownTokenError};
 use crate::errors::parser_errors;
@@ -18,7 +19,7 @@ pub fn build(dir: String, out:String){
     let tokens :&Vec<Token> = main_lexer.tokenize().unwrap_or_else(|e| {
         match e.error_type {
             UnknownTokenError => {
-                println!("Unknown token:{}!", e.wrong_token);
+                println!("Unknown token:{:?}!", e.wrong_token);
                 process::exit(-1);
             }
             MoreDotInANumberError => {
@@ -42,15 +43,19 @@ pub fn build(dir: String, out:String){
                 println!("Expected closing paren at:{:?}",e.wrong_token.token_value);
                 process::exit(-2);
             }
+            parser_errors::ParserErrorType::ExpectedId=>{
+                println!("Expected Identifier but found{:?}",e.wrong_token.token_value);
+                process::exit(-2);
+            }
         }
     });
     println!("{:?}",parsed_ast);
     //VM
-    let byte_code:&mut Vec<Instructions> = &mut vec![];
-    parsed_ast.compile(byte_code);
-    println!("{:?}",byte_code);
+    let mut compiler=Compiler::new();
+    parsed_ast.compile(&mut compiler);
+    println!("{:?}",compiler.out);
     let out_path=format!("target/{}",out);
-    compile_to_exec(out_path, byte_code).expect("TODO: panic message");
+    compile_to_exec(out_path, &mut compiler.out).expect("TODO: panic message");
 }
 
 fn compile_to_exec(file_name:String,byte_code:&mut Vec<Instructions>)->std::io::Result<()>{
@@ -79,7 +84,7 @@ fn compile_to_exec(file_name:String,byte_code:&mut Vec<Instructions>)->std::io::
                 writer.write_all(&v.as_bytes())?
             },
             Instructions::SaveVar(v)=>{
-                writer.write_all(&[6u8])?;
+                writer.write_all(&[7u8])?;
                 let bytes = v.as_bytes();
                 writer.write_all(&(bytes.len() as u32).to_le_bytes())?;
                 writer.write_all(&v.as_bytes())?

@@ -1,6 +1,6 @@
 //Imports
 use std::env;
-use flarec::{
+use flare::{
     compiler::saving_bytes::save::{build, run_code},
     errors::cli_errors::CommandLineError,
     errors::cli_errors::CommandLineError::{BuildHasJustTwoArg, NoFileSpecifiedForBuild, NoSuchCommand},
@@ -35,7 +35,7 @@ fn run_cli() -> Result<(), CommandLineError>{
             if args.len() != 3 {
                 return Err(NoFileSpecifiedForBuild);
             }
-            run_code(&args[3].clone());
+            run_code(&args[2].clone());
             Ok(())
         }
         "exec" => {

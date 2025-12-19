@@ -1,7 +1,7 @@
 use crate::errors::lexer_errors::LexerError;
 use crate::errors::lexer_errors::LexerErrorType::{MoreDotInANumberError, UnknownTokenError};
 use crate::lexer::tokens::{Token, TokenKind};
-use crate::lexer::tokens::TokenKind::{CONST, DIVIDE, EOF, FLOAT, FN, IDENTIFIER, LEFTPAREN, MINUS, NUMB, PLUS, RIGHTPAREN, STR, TIMES, VAR};
+use crate::lexer::tokens::TokenKind::{CONST, DIVIDE, EOF, EQUAL, FLOAT, FN, IDENTIFIER, LEFTPAREN, MINUS, NUMB, PLUS, RIGHTPAREN, STR, TIMES, VAR};
 
 pub struct Tokenizer {
     current_token:char,
@@ -28,7 +28,7 @@ impl Tokenizer {
         self.current_token=self.source_text[0];
         while self.current_token!='\0' {
             match self.current_token {
-                ' ' | '\n'|'\t'=>{
+                ' ' | '\n'|'\t'|'\r'=>{
                     self.advance();
                     continue},
                 '"'=>{
@@ -40,6 +40,12 @@ impl Tokenizer {
                     Token {
                     token_kind: PLUS,
                     token_value: self.current_token.to_string(),
+                    }
+                ),
+                '=' => self.final_tokens.push(
+                    Token {
+                        token_kind: EQUAL,
+                        token_value: self.current_token.to_string(),
                     }
                 ),
                 '(' => self.final_tokens.push(

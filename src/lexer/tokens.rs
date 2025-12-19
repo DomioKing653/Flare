@@ -7,6 +7,7 @@ pub enum TokenKind{
     DIVIDE,
     LEFTPAREN,
     RIGHTPAREN,
+    EQUAL,
     //VALUES
     NUMB,
     FLOAT,

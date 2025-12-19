@@ -1,5 +1,6 @@
-#[derive(Debug)]
-pub enum ComptimeValueType{
-    String,
-    Number
+#[derive(Debug, Clone, PartialEq)]
+pub enum ComptimeValueType {
+    Number,
+    StringValue,
+    Null
 }

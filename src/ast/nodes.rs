@@ -1,6 +1,6 @@
 use crate::lexer::tokens::TokenKind;
 use std::fmt;
-use std::fmt::{Debug, Formatter, Pointer};
+use std::fmt::{Debug, Formatter};
 use crate::compiler::byte_code::Compilable;
 use crate::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType;
 
@@ -91,8 +91,9 @@ Variable Define
 */
 pub struct VariableDefineNode{
     pub var_name:String,
-    pub value_type:ComptimeValueType,
-    pub value:Option<Box<dyn Compilable>>
+    pub value_type:Option<ComptimeValueType>,
+    pub value:Option<Box<dyn Compilable>>,
+    pub is_const:bool
 }
 impl Debug for VariableDefineNode {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
