@@ -7,8 +7,8 @@ use crate::{
     lexer::tokens::TokenKind::{DIVIDE, EOF, FLOAT, IDENTIFIER, LEFTPAREN, MINUS, NUMB, PLUS, RIGHTPAREN, STRING, TIMES,VAR,CONST}
 };
 use crate::ast::nodes::VariableDefineNode;
-use crate::errors::parser_errors::ParserErrorType::ExpectedId;
-use crate::lexer::tokens::TokenKind::EQUAL;
+use crate::errors::parser_errors::ParserErrorType::{ExpectedExplicitType, ExpectedId};
+use crate::lexer::tokens::TokenKind::{COLON, EQUAL};
 
 pub struct Parser{
     tokens:Vec<Token>,
@@ -37,7 +37,7 @@ impl Parser {
     }
     fn parse_stmt(&mut self)->Result<Box<dyn Compilable> ,ParserError>{
         match self.current_token().token_kind{
-            VAR=>{
+            VAR|CONST=>{
                 self.parse_var_decl_stmt()
             }
             _=>self.parse_expr()
@@ -61,6 +61,20 @@ impl Parser {
             id=self.current_token().token_value.clone();
         }
         self.advance();
+        let mut value_type = None;
+
+        if self.current_token().token_kind == COLON {
+            self.advance(); // :
+            if self.current_token().token_kind != IDENTIFIER {
+                return Err(ParserError {
+                    wrong_token: self.current_token().clone(),
+                    error_type: ExpectedExplicitType,
+                });
+            }
+
+            value_type = Some(self.current_token().token_value.clone());
+            self.advance();
+        }
         let value:Option<Box<dyn Compilable>>;
         if self.current_token().token_kind==EQUAL {
             self.advance();
@@ -69,7 +83,7 @@ impl Parser {
             value=None
         }
         Ok(Box::new(VariableDefineNode{
-            value_type:None,
+            value_type,
             value,
             var_name:id,
             is_const

@@ -120,7 +120,6 @@ impl VM {
                         self.ip+=4;
                         let name = &String::from_utf8(self.instr[self.ip..self.ip + len].to_vec())
                             .unwrap();
-                        println!("{}",name.to_string());
                         self.ip+=len;
                         let variable = self.variables.get(name);
                         self.stack.push(variable.unwrap().value.clone())
@@ -145,7 +144,9 @@ impl VM {
                     }
                     //Halt
                     255 => {
-                        println!("{:?}", self.stack[0]);
+                        if !self.stack.is_empty() {
+                            println!("{:?}", self.stack[0]);
+                        }
                         break;
                     }
                     _ => panic!(),

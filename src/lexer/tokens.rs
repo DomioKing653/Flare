@@ -13,6 +13,7 @@ pub enum TokenKind{
     FLOAT,
     STRING,
     IDENTIFIER,
+    COLON,
     //KEYWORDS
     FN,
     VAR,

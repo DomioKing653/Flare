@@ -1,14 +1,24 @@
-use std::fmt;
-use std::fmt::Formatter;
-use std::io::Error;
-use crate::ast::nodes::{BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode, VariableAccessNode, VariableDefineNode};
-use crate::compiler::comptime_variable_checker::comptime_context::CompileContext;
-use crate::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType;
-use crate::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{Null, Number, StringValue};
-use crate::compiler::instructions::Instructions;
-use crate::compiler::instructions::Instructions::{Add, Div, Halt, LoadVar, Mul, PushString, Sub};
-use crate::errors::compiler_errors::CompileError;
-use crate::lexer::tokens::TokenKind;
+use std::{
+    fmt,
+    fmt::Formatter
+};
+use CompileError::ConstantWithoutValue;
+use crate::{
+    ast::nodes::{BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode, VariableAccessNode, VariableDefineNode},
+    compiler::{
+        comptime_variable_checker::{
+            comptime_value_for_check::ComptimeValueType,
+            comptime_context::CompileContext,
+            comptime_value_for_check::ComptimeValueType::{Null, Number, StringValue}
+        },
+        instructions::Instructions,
+        instructions::Instructions::{Add, Div, Halt, LoadVar, Mul, PushString, Sub}
+    },
+    errors::compiler_errors::CompileError,
+    lexer::tokens::TokenKind
+};
+use crate::compiler::comptime_variable_checker::comptime_context::ComptimeVariable;
+use crate::errors::compiler_errors::CompileError::{CannotInferType, TypeMismatch, VariableRecreation};
 
 pub trait Compilable : fmt::Debug{
     fn compile(&self,compiler:&mut Compiler)->Result<ComptimeValueType,CompileError>;
@@ -72,7 +82,6 @@ impl Compilable for BinaryOpNode {
                     right,
                 }),
             },
-
             TokenKind::MINUS => {
                 if let Number = right {
                     compiler.out.push(Sub);
@@ -140,8 +149,13 @@ impl Compilable for ProgramNode {
 
 impl Compilable for VariableAccessNode {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-        compiler.out.push(LoadVar(self.variable_name.to_string()));
-        Ok(Null)
+        let var = compiler.context.variables.get(&self.variable_name)
+            .ok_or(CompileError::UndefinedVariable {
+                name:self.variable_name.clone()
+            })?;
+        compiler.out.push(LoadVar(self.variable_name.clone()));
+        Ok(var.value_type.clone())
+
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         writeln!(f, "{}Var({})", indent_fn(indent), self.variable_name)
@@ -160,14 +174,61 @@ impl Compilable for StringNode {
 
 impl Compilable for VariableDefineNode {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-        if let Some(value) = &self.value{
-            value.compile(compiler)?;
+        if compiler.context.variables.contains_key(&self.var_name.clone()) {
+            return  Err(VariableRecreation{
+                name:self.var_name.clone()
+            })
         }
+        if self.is_const && self.value.is_none() {
+            return Err(ConstantWithoutValue {
+                name:self.var_name.clone()
+            });
+        }
+        /*
+        Type
+        */
+        let inferred_type = if let Some(value) = &self.value {
+            Some(value.compile(compiler)?)
+        } else {
+            None
+        };
+        let declared_type = if let Some(t) = &self.value_type {
+            Some(CompileContext::get_type(t)?)
+        } else {
+            None
+        };
+
+        let final_type = match (declared_type, inferred_type) {
+            (Some(d), Some(i)) if d == i => d,
+            (Some(d), Some(i)) => {
+                return Err(TypeMismatch {
+                    expected: d,
+                    found: i,
+                });
+            }
+
+            (Some(d), None) => d,
+            (None, Some(i)) => i,
+            (None, None) => {
+                return Err(CannotInferType {
+                    name: self.var_name.clone(),
+                });
+            }
+        };
+
+        compiler.context.variables.insert(
+            self.var_name.clone(),
+            ComptimeVariable{
+                value_type:final_type,
+                is_const:self.is_const
+            }
+        );
         compiler.out.push(Instructions::SaveVar(self.var_name.clone()));
         Ok(Null)
     }
+
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
-        write!(f, "{}var:{:?}=", indent,self.value_type)?;
+        write!(f, "{}var:{:?}=", indent_fn(indent),self.value_type)?;
         if let Some(value) = &self.value {
             value.fmt_with_indent(f, 0)?;
         } else {

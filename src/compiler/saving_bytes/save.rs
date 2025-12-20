@@ -35,6 +35,10 @@ pub fn build(dir: String, out:String){
     let mut main_parser:Parser = Parser::new(tokens.to_vec());
     let parsed_ast= main_parser.parse().unwrap_or_else(|e|{
         match e.error_type {
+            parser_errors::ParserErrorType::ExpectedExplicitType=>{
+                println!("Expected explicit type but found{:?}",e.wrong_token.token_value);
+                process::exit(-2);
+            }
             parser_errors::ParserErrorType::UnexpectedTokenAtFactor=>{
                 println!("Unexpected token->expected value but found:{:?}",e.wrong_token.token_kind);
                 process::exit(-2);
@@ -52,7 +56,10 @@ pub fn build(dir: String, out:String){
     println!("{:?}",parsed_ast);
     //VM
     let mut compiler=Compiler::new();
-    parsed_ast.compile(&mut compiler);
+    if let Err(e) =  parsed_ast.compile(&mut compiler){
+        println!("{:?}",e);
+        process::exit(-3);
+    }
     println!("{:?}",compiler.out);
     let out_path=format!("target/{}",out);
     compile_to_exec(out_path, &mut compiler.out).expect("TODO: panic message");

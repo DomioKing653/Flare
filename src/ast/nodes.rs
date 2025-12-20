@@ -2,7 +2,6 @@ use crate::lexer::tokens::TokenKind;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
 use crate::compiler::byte_code::Compilable;
-use crate::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType;
 
 pub struct ProgramNode {
     pub program_nodes: Vec<Box<dyn Compilable>>,
@@ -91,7 +90,7 @@ Variable Define
 */
 pub struct VariableDefineNode{
     pub var_name:String,
-    pub value_type:Option<ComptimeValueType>,
+    pub value_type:Option<String>,
     pub value:Option<Box<dyn Compilable>>,
     pub is_const:bool
 }
