@@ -149,6 +149,17 @@ impl VM {
                         };
                         self.stack.push(Value::Bool(value));
                     }
+                    20=>{
+                        self.ip+=1;
+                        match self.pop()? {
+                            StringValue(s)=>{
+                                println!("{}",s);
+                            }
+                            _=>{
+                                unreachable!()
+                            }
+                        }
+                    }
                     //Halt
                     255 => {
                         if !self.stack.is_empty() {

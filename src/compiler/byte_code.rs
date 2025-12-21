@@ -27,7 +27,7 @@ pub trait Compilable: fmt::Debug {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError>;
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result;
 }
-fn indent_fn(n: usize) -> String {
+pub fn indent_fn(n: usize) -> String {
     "  ".repeat(n)
 }
 
@@ -215,7 +215,6 @@ impl Compilable for VariableDefineNode {
                     found: i,
                 });
             }
-
             (Some(d), None) => d,
             (None, Some(i)) => i,
             (None, None) => {

@@ -116,6 +116,9 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
                 writer.write_all(&[9u8])?; // opcode pro PushNumber
                 writer.write_all(&n.to_le_bytes())?;
             }
+            Instructions::WriteLastOnStack=>{
+                writer.write_all(&[20u8])?;
+            }
             Instructions::Halt => writer.write_all(&[255u8])?,
         }
     }
