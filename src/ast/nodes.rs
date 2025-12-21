@@ -71,6 +71,15 @@ impl Debug for StringNode {
         self.fmt_with_indent(f, 0)
     }
 }
+
+pub struct BoolNode{
+    pub value:TokenKind
+}
+impl Debug for BoolNode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        self.fmt_with_indent(f, 0)
+    }
+}
 //VARIABLES
 /*
 Variable Access

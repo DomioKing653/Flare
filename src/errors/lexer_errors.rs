@@ -1,7 +1,8 @@
 #[derive(Debug)]
 pub enum LexerErrorType{
     UnknownTokenError,
-    MoreDotInANumberError
+    MoreDotInANumberError,
+    EmptyFile
 }
 #[derive(Debug)]
 pub struct LexerError{

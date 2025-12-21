@@ -1,7 +1,20 @@
-use crate::errors::lexer_errors::LexerError;
-use crate::errors::lexer_errors::LexerErrorType::{MoreDotInANumberError, UnknownTokenError};
-use crate::lexer::tokens::{Token, TokenKind};
-use crate::lexer::tokens::TokenKind::{COLON, CONST, DIVIDE, EOF, EQUAL, FLOAT, FN, IDENTIFIER, LEFTPAREN, MINUS, NUMB, PLUS, RIGHTPAREN, STR, TIMES, VAR};
+use crate::{
+    lexer::{
+        tokens::{
+            Token,
+            TokenKind,
+            TokenKind::{COLON, CONST, DIVIDE, EOF, EQUAL, FLOAT, FN, IDENTIFIER, LEFTPAREN, MINUS, NUMB, PLUS, RIGHTPAREN, STR, TIMES, VAR}
+        }
+    },
+    errors::{
+        lexer_errors::{
+            LexerErrorType::{MoreDotInANumberError, UnknownTokenError},
+            LexerError
+        }
+    },
+};
+use crate::errors::lexer_errors::LexerErrorType::EmptyFile;
+use crate::lexer::tokens::TokenKind::{FALSE, TRUE};
 
 pub struct Tokenizer {
     current_token:char,
@@ -25,6 +38,13 @@ impl Tokenizer {
         }
     }
     pub fn tokenize(&mut self)->Result<&Vec<Token>,LexerError>{
+        if self.source_text.is_empty() {
+            return  Err(LexerError {
+                wrong_token: "".to_string(),
+                error_type: EmptyFile,
+
+            });
+        }
         self.current_token=self.source_text[0];
         while self.current_token!='\0' {
             match self.current_token {
@@ -166,6 +186,18 @@ impl Tokenizer {
                     token_kind:CONST,
                     token_value:text_buffer
                 },
+            "true"=>{
+              Token{
+                  token_value:text_buffer,
+                  token_kind:TRUE
+              }
+            },
+            "false"=>{
+                Token{
+                    token_value:text_buffer,
+                    token_kind: FALSE
+                }
+            },
             _ =>
                 Token{
                     token_kind:IDENTIFIER,

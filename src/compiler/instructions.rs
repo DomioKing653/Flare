@@ -1,6 +1,6 @@
 #[derive(Debug)]
 pub enum Instructions{
-    PushNumber(f32),
+
     Add,
     Sub,
     Div,
@@ -8,6 +8,7 @@ pub enum Instructions{
     PushString(String),
     LoadVar(String),
     SaveVar(String),
+    PushBool(bool),
+    PushNumber(f32),
     Halt
-    
 }

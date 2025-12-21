@@ -117,10 +117,10 @@ impl VM {
                         let len = u32::from_le_bytes(
                             self.instr[self.ip..self.ip + 4].try_into().unwrap(),
                         ) as usize;
-                        self.ip+=4;
+                        self.ip += 4;
                         let name = &String::from_utf8(self.instr[self.ip..self.ip + len].to_vec())
                             .unwrap();
-                        self.ip+=len;
+                        self.ip += len;
                         let variable = self.variables.get(name);
                         self.stack.push(variable.unwrap().value.clone())
                     }
@@ -129,18 +129,25 @@ impl VM {
                         let len = u32::from_le_bytes(
                             self.instr[self.ip..self.ip + 4].try_into().unwrap(),
                         ) as usize;
-                        self.ip+=4;
-                        let name = String::from_utf8(self.instr[self.ip..self.ip + len].to_vec())
-                            .unwrap();
-                        self.ip+=len;
-                        let var =Variable{
-                            value:self.pop()?
+                        self.ip += 4;
+                        let name =
+                            String::from_utf8(self.instr[self.ip..self.ip + len].to_vec()).unwrap();
+                        self.ip += len;
+                        let var = Variable { value: self.pop()? };
+                        println!("Saving variable:{:?}", var);
+                        self.variables.insert(name, var);
+                    }
+                    8=>{
+                        self.ip += 1;
+                        let byte = self.instr[self.ip];
+                        self.ip += 1;
+
+                        let value = match byte {
+                            0 => false,
+                            1 => true,
+                            _ => return Err("Invalid bool value".into()),
                         };
-                        println!("Saving variable:{:?}",var);
-                        self.variables.insert(
-                            name,
-                            var
-                        );
+                        self.stack.push(Value::Bool(value));
                     }
                     //Halt
                     255 => {

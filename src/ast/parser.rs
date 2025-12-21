@@ -1,14 +1,49 @@
 use crate::{
-    lexer::tokens::Token,
-    errors::parser_errors::ParserErrorType::{ExpectedClosingParen, UnexpectedTokenAtFactor},
-    errors::parser_errors::ParserError,
+    ast::{
+        nodes::{
+            VariableDefineNode,
+            BinaryOpNode,
+            FloatNode,
+            NumberNode,
+            ProgramNode,
+            StringNode,
+            VariableAccessNode
+        }
+    },
+    lexer::{
+        tokens::{
+            TokenKind::{
+                self,
+                DIVIDE,
+                EOF,
+                FLOAT,
+                IDENTIFIER,
+                LEFTPAREN,
+                MINUS,
+                NUMB,
+                PLUS,
+                RIGHTPAREN,
+                STRING,
+                TIMES,
+                VAR,
+                CONST,
+                VALUE,
+                COLON,
+                EQUAL
+            },
+            Token,
+        }
+    },
+    errors::{
+        parser_errors::{
+            ParserError,
+            ParserError::UnexpectedToken
+        }
+    },
     compiler::byte_code::Compilable,
-    ast::nodes::{BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode, VariableAccessNode},
-    lexer::tokens::TokenKind::{DIVIDE, EOF, FLOAT, IDENTIFIER, LEFTPAREN, MINUS, NUMB, PLUS, RIGHTPAREN, STRING, TIMES,VAR,CONST}
 };
-use crate::ast::nodes::VariableDefineNode;
-use crate::errors::parser_errors::ParserErrorType::{ExpectedExplicitType, ExpectedId};
-use crate::lexer::tokens::TokenKind::{COLON, EQUAL};
+use crate::ast::nodes::BoolNode;
+use crate::lexer::tokens::TokenKind::{FALSE, TRUE};
 
 pub struct Parser{
     tokens:Vec<Token>,
@@ -52,25 +87,17 @@ impl Parser {
         }
         let id:String;
         self.advance();
-        if self.current_token().token_kind!=IDENTIFIER {
-            return Err(ParserError{
-                wrong_token:self.current_token().clone(),
-                error_type:ExpectedId
-            })
-        }else {
-            id=self.current_token().token_value.clone();
-        }
+
+        self.expect(IDENTIFIER)?;
+
+        id=self.current_token().token_value.clone();
+
         self.advance();
         let mut value_type = None;
 
         if self.current_token().token_kind == COLON {
-            self.advance(); // :
-            if self.current_token().token_kind != IDENTIFIER {
-                return Err(ParserError {
-                    wrong_token: self.current_token().clone(),
-                    error_type: ExpectedExplicitType,
-                });
-            }
+            self.advance();
+            self.expect(IDENTIFIER)?;
 
             value_type = Some(self.current_token().token_value.clone());
             self.advance();
@@ -126,6 +153,16 @@ impl Parser {
                 number:value
             }))
         }
+        else if self.current_token().token_kind == TRUE ||self.current_token().token_kind == FALSE{
+            let value = self.current_token().token_kind.clone();
+            self.advance();
+            Ok(Box::new(
+                BoolNode{
+                    value
+                }
+            ))
+
+        }
         else if self.current_token().token_kind == NUMB {
             let value = match self.current_token().token_value.parse::<i32>() {
                 Ok(numb)=>numb,
@@ -150,13 +187,7 @@ impl Parser {
         else if self.current_token().token_kind==LEFTPAREN {
            self.advance();
            let value = self.parse_expr()?;
-           if self.current_token().token_kind!=RIGHTPAREN {
-                return Err(ParserError{
-                    error_type:ExpectedClosingParen,
-                    wrong_token:self.current_token().clone()
-
-                })
-           }
+           self.expect(RIGHTPAREN)?;
             self.advance();
             Ok(value)
         }
@@ -168,10 +199,22 @@ impl Parser {
             Ok(Box::new(value))
         }
         else {
-            Err(ParserError{
-                wrong_token:self.current_token().clone(),
-                error_type:UnexpectedTokenAtFactor
+            Err(UnexpectedToken {
+                found:self.current_token().token_value.clone(),
+                expected: VALUE
             })
+        }
+    }
+    fn expect(&mut self,token_kind: TokenKind)->Result<Token,ParserError>{
+        if self.current_token().token_kind==token_kind {
+            Ok(self.current_token().clone())
+        }else {
+            Err(
+                UnexpectedToken {
+                    expected:token_kind,
+                    found:self.current_token().token_value.clone()
+                }
+            )
         }
     }
 }

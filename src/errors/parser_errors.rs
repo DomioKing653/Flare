@@ -1,13 +1,10 @@
-use crate::lexer::tokens::Token;
+use crate::lexer::tokens::TokenKind;
 
-pub enum ParserErrorType{
-    UnexpectedTokenAtFactor,
-    ExpectedClosingParen,
-    ExpectedId,
-    ExpectedExplicitType
+#[derive(Debug)]
+pub enum ParserError{
+    UnexpectedToken {
+        found:String,
+        expected:TokenKind
+    }
 }
 
-pub struct ParserError{
-    pub error_type:ParserErrorType,
-    pub wrong_token:Token
-}

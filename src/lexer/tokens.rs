@@ -14,13 +14,18 @@ pub enum TokenKind{
     STRING,
     IDENTIFIER,
     COLON,
+    SEMICOLON,
+    //VALUES
+    TRUE,
+    FALSE,
     //KEYWORDS
     FN,
     VAR,
     CONST,
     STR,
     //EOF
-    EOF
+    EOF,
+    VALUE
 }
 
 #[derive(Clone)]
