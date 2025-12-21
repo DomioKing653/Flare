@@ -130,8 +130,8 @@ impl Compilable for BinaryOpNode {
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         writeln!(f, "{}BinaryOp({:?})", indent_fn(indent), self.op_tok)?;
-        self.left.fmt_with_indent(f, indent + 1)?;
-        self.right.fmt_with_indent(f, indent + 1)?;
+        self.left.fmt_with_indent(f, indent + 2)?;
+        self.right.fmt_with_indent(f, indent + 2)?;
         Ok(())
     }
 }

@@ -43,7 +43,7 @@ use crate::{
     compiler::byte_code::Compilable,
 };
 use crate::ast::nodes::BoolNode;
-use crate::lexer::tokens::TokenKind::{FALSE, TRUE};
+use crate::lexer::tokens::TokenKind::{FALSE, SEMICOLON, TRUE};
 
 pub struct Parser{
     tokens:Vec<Token>,
@@ -73,7 +73,9 @@ impl Parser {
     fn parse_stmt(&mut self)->Result<Box<dyn Compilable> ,ParserError>{
         match self.current_token().token_kind{
             VAR|CONST=>{
-                self.parse_var_decl_stmt()
+                let value =self.parse_var_decl_stmt();
+                self.expect(SEMICOLON)?;
+                value
             }
             _=>self.parse_expr()
         }
@@ -87,20 +89,14 @@ impl Parser {
         }
         let id:String;
         self.advance();
-
-        self.expect(IDENTIFIER)?;
-
-        id=self.current_token().token_value.clone();
-
-        self.advance();
+        id=self.expect(IDENTIFIER)?.token_value;
         let mut value_type = None;
 
         if self.current_token().token_kind == COLON {
             self.advance();
-            self.expect(IDENTIFIER)?;
 
-            value_type = Some(self.current_token().token_value.clone());
-            self.advance();
+
+            value_type = Some(self.expect(IDENTIFIER)?.token_value);
         }
         let value:Option<Box<dyn Compilable>>;
         if self.current_token().token_kind==EQUAL {
@@ -207,7 +203,9 @@ impl Parser {
     }
     fn expect(&mut self,token_kind: TokenKind)->Result<Token,ParserError>{
         if self.current_token().token_kind==token_kind {
-            Ok(self.current_token().clone())
+            let token =self.current_token().clone();
+            self.advance();
+            Ok(token)
         }else {
             Err(
                 UnexpectedToken {

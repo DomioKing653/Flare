@@ -14,7 +14,7 @@ use crate::{
     },
 };
 use crate::errors::lexer_errors::LexerErrorType::EmptyFile;
-use crate::lexer::tokens::TokenKind::{FALSE, TRUE};
+use crate::lexer::tokens::TokenKind::{FALSE, SEMICOLON, TRUE};
 
 pub struct Tokenizer {
     current_token:char,
@@ -66,6 +66,12 @@ impl Tokenizer {
                     Token {
                     token_kind: PLUS,
                     token_value: self.current_token.to_string(),
+                    }
+                ),
+                ';' => self.final_tokens.push(
+                    Token {
+                        token_kind: SEMICOLON,
+                        token_value: self.current_token.to_string(),
                     }
                 ),
                 '=' => self.final_tokens.push(

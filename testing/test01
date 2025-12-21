@@ -1,2 +1,5 @@
-var b = false
-b
+var b = false;
+const hello:string = "Hello ";
+const world = "world";
+var final = hello+world;
+final
