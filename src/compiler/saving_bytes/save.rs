@@ -65,7 +65,7 @@ pub fn build(dir: String, out: String) {
         }
         process::exit(-2)
     });
-    println!("{:?}", parsed_ast);
+    println!("\n{:?}", parsed_ast);
     //VM
     let mut compiler = Compiler::new();
     if let Err(e) = parsed_ast.compile(&mut compiler) {
@@ -116,9 +116,11 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
                 writer.write_all(&[9u8])?; // opcode pro PushNumber
                 writer.write_all(&n.to_le_bytes())?;
             }
+
             Instructions::WriteLastOnStack=>{
                 writer.write_all(&[20u8])?;
-            }
+            },
+
             Instructions::Halt => writer.write_all(&[255u8])?,
         }
     }
@@ -127,6 +129,7 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
 
 pub fn run_code(path: &str) {
     let mut vm: VM = VM::from_file(path).unwrap();
+    println!("Program:");
     vm.run().unwrap()
 }
 fn ensure_target_dir() {

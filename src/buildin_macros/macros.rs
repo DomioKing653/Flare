@@ -1,7 +1,3 @@
-use std::{
-    fmt,
-    fmt::{Debug, Formatter}
-};
 use crate::{
     compiler::{
         comptime_variable_checker::{
@@ -15,25 +11,28 @@ use crate::{
         byte_code::{Compilable, Compiler},
     },
     errors::compiler_errors::CompileError,
-    compiler::byte_code::indent_fn
 };
 use crate::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType::StringValue;
 use crate::compiler::instructions::Instructions::WriteLastOnStack;
 use crate::errors::compiler_errors::CompileError::TypeMismatch;
 
-pub struct WriteLnMacro{
-    pub args:Box<dyn Compilable>
+pub trait Macro{
+    fn compile(&self,out:&mut Compiler,args: &[Box<dyn Compilable>])->Result<ComptimeValueType,CompileError>;
+    fn get_args(&self)->usize;
 }
 
-impl Debug for WriteLnMacro {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        self.fmt_with_indent(f,0)
-    }
-}
+pub struct WriteLnMacro;
 
-impl Compilable for WriteLnMacro {
-    fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-        let type_of_args = self.args.compile(compiler)?;
+
+impl Macro for WriteLnMacro {
+    fn compile(&self, compiler: &mut Compiler,args:&[Box<dyn Compilable>]) -> Result<ComptimeValueType, CompileError> {
+
+        if args.len() !=self.get_args(){
+            unreachable!()
+        }else {
+
+        }
+        let type_of_args = args[0].compile(compiler)?;
         if type_of_args!=StringValue {
             return Err(
                 TypeMismatch {
@@ -45,8 +44,8 @@ impl Compilable for WriteLnMacro {
         compiler.out.push(WriteLastOnStack);
         Ok(Null)
     }
-    fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
-        writeln!(f, "{}WriteLn!({:?})",indent_fn(indent),self.args )
+
+    fn get_args(&self) -> usize {
+        1
     }
 }
-

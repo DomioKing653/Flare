@@ -3,6 +3,9 @@ use crate::compiler::comptime_variable_checker::comptime_value_for_check::Compti
 #[derive(Debug)]
 pub enum CompileError {
 
+    UnknownMacro{
+        name:String
+    },
     CannotInferType {
         name: String
     },
@@ -46,4 +49,5 @@ pub enum CompileError {
         expected: ComptimeValueType,
         found: ComptimeValueType,
     },
+    WrongMacroArgCount { expected: usize, found: usize },
 }

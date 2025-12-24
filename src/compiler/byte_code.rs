@@ -3,27 +3,32 @@ use crate::{
         BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode, VariableAccessNode,
         VariableDefineNode,
     },
-    compiler::comptime_variable_checker::comptime_context::ComptimeVariable,
+    ast::nodes::{BoolNode, CallType, FunctionCallNode, VariableAssignNode},
+    buildin_macros::get_macro::MacroManager,
     compiler::{
         comptime_variable_checker::{
-            comptime_context::CompileContext,
-            comptime_value_for_check::ComptimeValueType,
-            comptime_value_for_check::ComptimeValueType::{Null, Number, StringValue},
+            comptime_context::{CompileContext, ComptimeVariable},
+            comptime_value_for_check::ComptimeValueType::{self, Bool, Null, Number, StringValue},
         },
-        instructions::Instructions,
-        instructions::Instructions::{Add, Div, Halt, LoadVar, Mul, PushString, Sub},
+        instructions::Instructions::{
+            self, Add, Div, Halt, LoadVar, Mul, PushBool, PushNumber, PushString, Sub,
+        },
     },
-    errors::compiler_errors::CompileError,
-    errors::compiler_errors::CompileError::{CannotInferType, TypeMismatch, VariableRecreation},
-    lexer::tokens::TokenKind,
+    errors::compiler_errors::CompileError::{
+        self, CannotInferType, TypeMismatch, VariableRecreation,
+    },
+    lexer::tokens::TokenKind::{self, TRUE},
 };
-use std::{fmt, fmt::Formatter};
+use std::{
+    fmt::{
+        Debug,
+        self,
+        Formatter
+    }
+};
 use CompileError::ConstantWithoutValue;
-use crate::ast::nodes::BoolNode;
-use crate::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType::Bool;
-use crate::lexer::tokens::TokenKind::TRUE;
 
-pub trait Compilable: fmt::Debug {
+pub trait Compilable: Debug {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError>;
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result;
 }
@@ -34,6 +39,7 @@ pub fn indent_fn(n: usize) -> String {
 pub struct Compiler {
     pub context: CompileContext,
     pub out: Vec<Instructions>,
+    pub macros: MacroManager,
 }
 
 impl Compiler {
@@ -41,6 +47,7 @@ impl Compiler {
         Self {
             context: CompileContext::new(),
             out: Vec::new(),
+            macros: MacroManager::new(),
         }
     }
 }
@@ -49,7 +56,7 @@ impl Compilable for NumberNode {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         compiler
             .out
-            .push(Instructions::PushNumber(self.number as f32));
+            .push(PushNumber(self.number as f32));
         Ok(Number)
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
@@ -59,7 +66,7 @@ impl Compilable for NumberNode {
 
 impl Compilable for FloatNode {
     fn compile(&self, out: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-        out.out.push(Instructions::PushNumber(self.number));
+        out.out.push(PushNumber(self.number));
         Ok(Number)
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
@@ -93,7 +100,7 @@ impl Compilable for BinaryOpNode {
                     Ok(Number)
                 } else {
                     Err(CompileError::InvalidBinaryOp {
-                        op: "/",
+                        op: "-",
                         left,
                         right,
                     })
@@ -105,7 +112,7 @@ impl Compilable for BinaryOpNode {
                     Ok(Number)
                 } else {
                     Err(CompileError::InvalidBinaryOp {
-                        op: "/",
+                        op: "*",
                         left,
                         right,
                     })
@@ -215,7 +222,17 @@ impl Compilable for VariableDefineNode {
                     found: i,
                 });
             }
-            (Some(d), None) => d,
+            (Some(d), None) => {
+                match d {
+                    StringValue => compiler.out.push(PushString("".to_string())),
+                    Number => compiler.out.push(PushNumber(0f32)),
+                    Bool => compiler.out.push(PushBool(false)),
+                    Null => {
+                        unreachable!()
+                    }
+                }
+                d
+            }
             (None, Some(i)) => i,
             (None, None) => {
                 return Err(CannotInferType {
@@ -249,10 +266,71 @@ impl Compilable for VariableDefineNode {
 
 impl Compilable for BoolNode {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-        compiler.out.push(Instructions::PushBool(if self.value==TRUE { true  }else { false }));
+        compiler
+            .out
+            .push(PushBool(if self.value == TRUE {
+                true
+            } else {
+                false
+            }));
         Ok(Bool)
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         writeln!(f, "{}String({:?})", indent_fn(indent), self.value)
+    }
+}
+
+impl Compilable for VariableAssignNode {
+    fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
+        let (is_const, expected_type) = {
+            let var = compiler.context.variables.get(&self.name).ok_or(
+                CompileError::UndefinedVariable {
+                    name: self.name.clone(),
+                },
+            )?;
+            (var.is_const, var.value_type.clone())
+        };
+        if is_const {
+            return Err(CompileError::ConstReassignment {
+                name: self.name.clone(),
+            });
+        }
+
+        let value_type = self.value.compile(compiler)?;
+
+        if value_type != expected_type {
+            return Err(TypeMismatch {
+                expected: expected_type,
+                found: value_type,
+            });
+        }
+
+        compiler.out.push(Instructions::SaveVar(self.name.clone()));
+        Ok(value_type)
+    }
+    fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
+        writeln!(f, "{}{}=", indent_fn(indent), self.name)?;
+        self.value.fmt(f)?;
+        Ok(())
+    }
+}
+impl Compilable for FunctionCallNode {
+    fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
+        match self.call_type {
+            CallType::Macro => {
+                let mac = compiler.macros.macros.remove(&self.name)
+                    .ok_or(CompileError::UnknownMacro { name: self.name.clone() })?;
+                let result = mac.compile(compiler, &self.args);
+                compiler.macros.macros.insert(self.name.clone(), mac);
+                result
+            }
+            CallType::Fn => {
+                unreachable!()
+            }
+        }
+    }
+    fn fmt_with_indent(&self, _f: &mut Formatter<'_>, _indent: usize) -> fmt::Result {
+        writeln!(_f,"{}{}(...)",indent_fn(_indent),self.name)
+
     }
 }

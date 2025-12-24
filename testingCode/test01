@@ -1,5 +1,7 @@
 var b = false;
+var test:string;
 const hello:string = "Hello ";
 const world = "world";
-var final = hello+world;
-final
+var final = 3/3;
+test = test + "final";
+writeLn!(5)

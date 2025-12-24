@@ -1,9 +1,24 @@
-use crate::virtual_machine::value::Value;
-use crate::virtual_machine::value::Value::{Number, StringValue};
-use crate::virtual_machine::variables::variable::Variable;
-use std::collections::HashMap;
-use std::string::String;
-use std::{error::Error, f32, fs};
+use {
+    crate::{
+        virtual_machine::{
+            value::{
+                Value::{
+                    Number,
+                    StringValue,
+                    self
+                }
+            },
+            variables::variable::Variable
+        }
+    },
+    std::{
+        collections::HashMap,
+        string::String,
+        error::Error,
+        f32,
+        fs
+    }
+};
 
 pub struct VM {
     pub ip: usize,
@@ -33,14 +48,7 @@ impl VM {
                 return Err("Unexpected EOF".into());
             } else {
                 match self.instr[self.ip] {
-                    0 => {
-                        self.ip += 1;
-                        let number = f32::from_le_bytes(
-                            self.instr[self.ip..self.ip + 4].try_into().unwrap(),
-                        );
-                        self.ip += 4;
-                        self.stack.push(Number(number));
-                    }
+
                     1 => {
                         let right = self.pop()?;
                         let left = self.pop()?;
@@ -75,8 +83,8 @@ impl VM {
                         let left = self.pop()?;
 
                         match (left, right) {
-                            (Value::Number(a), Value::Number(b)) => {
-                                self.stack.push(Value::Number(a * b));
+                            (Number(a), Number(b)) => {
+                                self.stack.push(Number(a * b));
                             }
                             _ => return Err("Type error: '*' expects numbers".into()),
                         }
@@ -86,17 +94,15 @@ impl VM {
                     4 => {
                         let right = self.pop()?;
                         let left = self.pop()?;
-
                         match (left, right) {
-                            (Value::Number(a), Value::Number(b)) => {
+                            (Number(a), Number(b)) => {
                                 if b == 0.0 {
                                     return Err("Cannot divide by zero".into());
                                 }
-                                self.stack.push(Value::Number(a / b));
+                                self.stack.push(Number(a / b));
                             }
                             _ => return Err("Type error: '/' expects numbers".into()),
                         }
-
                         self.ip += 1;
                     }
                     5 => {
@@ -110,7 +116,7 @@ impl VM {
                             String::from_utf8(self.instr[self.ip..self.ip + len].to_vec()).unwrap();
                         self.ip += len;
 
-                        self.stack.push(Value::StringValue(s));
+                        self.stack.push(StringValue(s));
                     }
                     6 => {
                         self.ip += 1;
@@ -139,19 +145,27 @@ impl VM {
                     }
                     8=>{
                         self.ip += 1;
-                        let byte = self.instr[self.ip];
+                        let byte:u8 = self.instr[self.ip];
                         self.ip += 1;
 
-                        let value = match byte {
+                        let value:bool = match byte {
                             0 => false,
                             1 => true,
                             _ => return Err("Invalid bool value".into()),
                         };
-                        self.stack.push(Value::Bool(value));
+                        (&mut self.stack).push(Value::Bool(value));
+                    }
+                    9 => {
+                        self.ip += 1;
+                        let number:f32 = f32::from_le_bytes(
+                            self.instr[self.ip..self.ip + 4].try_into().unwrap(),
+                        );
+                        self.ip += 4;
+                        (&mut self.stack).push(Number(number));
                     }
                     20=>{
                         self.ip+=1;
-                        match self.pop()? {
+                        match (&mut *self).pop()? {
                             StringValue(s)=>{
                                 println!("{}",s);
                             }
@@ -174,6 +188,6 @@ impl VM {
         Ok(())
     }
     fn pop(&mut self) -> Result<Value, String> {
-        self.stack.pop().ok_or("Stack underflow".into())
+        (&mut self.stack).pop().ok_or("Stack underflow".into())
     }
 }

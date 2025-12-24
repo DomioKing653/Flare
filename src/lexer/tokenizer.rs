@@ -14,7 +14,7 @@ use crate::{
     },
 };
 use crate::errors::lexer_errors::LexerErrorType::EmptyFile;
-use crate::lexer::tokens::TokenKind::{FALSE, SEMICOLON, TRUE};
+use crate::lexer::tokens::TokenKind::{COMMA, FALSE, SEMICOLON, TRUE};
 
 pub struct Tokenizer {
     current_token:char,
@@ -66,6 +66,12 @@ impl Tokenizer {
                     Token {
                     token_kind: PLUS,
                     token_value: self.current_token.to_string(),
+                    }
+                ),
+                ',' => self.final_tokens.push(
+                    Token {
+                        token_kind: COMMA,
+                        token_value: self.current_token.to_string(),
                     }
                 ),
                 ';' => self.final_tokens.push(
@@ -167,7 +173,7 @@ impl Tokenizer {
     }
     fn create_text_token(&mut self) -> Token{
         let mut text_buffer:String = String::new();
-        while self.current_token.is_alphabetic() {
+        while self.current_token.is_alphabetic() || self.current_token.is_numeric() ||self.current_token == '!' {
             text_buffer.push(self.current_token);
             self.advance()
         }
@@ -212,7 +218,7 @@ impl Tokenizer {
         }
     }
     fn read_string(&mut self) -> Token {
-        self.advance(); // přeskočí "
+        self.advance();
 
         let mut value = String::new();
         while self.current_token != '"' {

@@ -13,6 +13,8 @@ pub enum TokenKind{
     FLOAT,
     STRING,
     IDENTIFIER,
+    //MISC
+    COMMA,
     COLON,
     SEMICOLON,
     //VALUES
