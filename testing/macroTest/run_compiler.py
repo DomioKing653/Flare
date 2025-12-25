@@ -4,11 +4,11 @@ compilerPath = "C:/Users/simon/RustroverProjects/Flare/target/debug/flarec"
 
 
 def run_compiler(source: str):
-    subprocess.run(
+    proc = subprocess.run(
         [compilerPath, "build", source, "testing-1"],
 
     )
-    proc = subprocess.run(
+    subprocess.run(
         [compilerPath,
          "run",
          "target/testing-1"
@@ -16,4 +16,5 @@ def run_compiler(source: str):
         capture_output=True,
         text=True
     )
+    print(proc.returncode)
     return proc.returncode, proc.stdout, proc.stderr

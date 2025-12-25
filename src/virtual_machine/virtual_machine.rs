@@ -1,23 +1,9 @@
 use {
-    crate::{
-        virtual_machine::{
-            value::{
-                Value::{
-                    Number,
-                    StringValue,
-                    self
-                }
-            },
-            variables::variable::Variable
-        }
+    crate::virtual_machine::{
+        value::Value::{self, Number, StringValue},
+        variables::variable::Variable,
     },
-    std::{
-        collections::HashMap,
-        string::String,
-        error::Error,
-        f32,
-        fs
-    }
+    std::{collections::HashMap, error::Error, f32, fs, string::String},
 };
 
 pub struct VM {
@@ -48,7 +34,6 @@ impl VM {
                 return Err("Unexpected EOF".into());
             } else {
                 match self.instr[self.ip] {
-
                     1 => {
                         let right = self.pop()?;
                         let left = self.pop()?;
@@ -88,7 +73,6 @@ impl VM {
                             }
                             _ => return Err("Type error: '*' expects numbers".into()),
                         }
-
                         self.ip += 1;
                     }
                     4 => {
@@ -143,12 +127,12 @@ impl VM {
                         println!("Saving variable:{:?}", var);
                         self.variables.insert(name, var);
                     }
-                    8=>{
+                    8 => {
                         self.ip += 1;
-                        let byte:u8 = self.instr[self.ip];
+                        let byte: u8 = self.instr[self.ip];
                         self.ip += 1;
 
-                        let value:bool = match byte {
+                        let value: bool = match byte {
                             0 => false,
                             1 => true,
                             _ => return Err("Invalid bool value".into()),
@@ -157,19 +141,22 @@ impl VM {
                     }
                     9 => {
                         self.ip += 1;
-                        let number:f32 = f32::from_le_bytes(
+                        let number: f32 = f32::from_le_bytes(
                             self.instr[self.ip..self.ip + 4].try_into().unwrap(),
                         );
                         self.ip += 4;
                         (&mut self.stack).push(Number(number));
                     }
-                    20=>{
-                        self.ip+=1;
+                    20 => {
+                        self.ip += 1;
                         match (&mut *self).pop()? {
-                            StringValue(s)=>{
-                                println!("{}",s);
+                            StringValue(s) => {
+                                println!("{}", s);
                             }
-                            _=>{
+                            Number(n) => {
+                                println!("{}", n)
+                            }
+                            _ => {
                                 unreachable!()
                             }
                         }

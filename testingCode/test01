@@ -3,5 +3,5 @@ var test:string;
 const hello:string = "Hello ";
 const world = "world";
 var final = 3/3;
-test = test + "final";
-writeLn!(5)
+test = world + "final";
+writeLn!(final)

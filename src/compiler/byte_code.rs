@@ -28,6 +28,7 @@ use std::{
 };
 use CompileError::ConstantWithoutValue;
 
+
 pub trait Compilable: Debug {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError>;
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result;
