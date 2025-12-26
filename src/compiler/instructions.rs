@@ -9,7 +9,7 @@ pub enum Instructions {
     SaveVar(String),
     PushBool(bool),
     PushNumber(f32),
-    WriteLnLastOnsStack,
+    WriteLnLastOnStack,
     WriteLastOnStack,
     Halt,
 }

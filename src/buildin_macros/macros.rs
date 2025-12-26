@@ -1,10 +1,11 @@
+use crate::compiler::instructions::Instructions::WriteLastOnStack;
 use crate::{
     compiler::{
         byte_code::{Compilable, Compiler},
         comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{
             self, Bool, Null, StringValue,
         },
-        instructions::Instructions::{self, WriteLnLastOnsStack},
+        instructions::Instructions::WriteLnLastOnStack,
     },
     errors::compiler_errors::CompileError::{self, TypeMismatch},
 };
@@ -29,7 +30,7 @@ impl Macro for WriteLnMacro {
         for arg in args {
             let value = arg.compile(compiler)?;
             match value {
-                StringValue | Number => compiler.out.push(WriteLnLastOnsStack),
+                StringValue | Number => compiler.out.push(WriteLnLastOnStack),
                 Bool => {
                     return Err(TypeMismatch {
                         expected: StringValue,
@@ -54,8 +55,19 @@ impl Macro for WriteMacro {
         args: &[Box<dyn Compilable>],
     ) -> Result<ComptimeValueType, CompileError> {
         for arg in args {
-            arg.compile(compiler)?;
-            compiler.out.push(Instructions::WriteLastOnStack);
+            let value = arg.compile(compiler)?;
+            match value {
+                StringValue | Number => compiler.out.push(WriteLastOnStack),
+                Bool => {
+                    return Err(TypeMismatch {
+                        expected: StringValue,
+                        found: Bool,
+                    });
+                }
+                Null => {
+                    unreachable!()
+                }
+            }
         }
         Ok(Null)
     }

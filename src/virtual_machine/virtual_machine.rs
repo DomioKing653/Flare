@@ -161,6 +161,20 @@ impl VM {
                             }
                         }
                     }
+                    21 => {
+                        self.ip += 1;
+                        match self.pop()? {
+                            StringValue(s) => {
+                                print!("{}", s)
+                            }
+                            Number(n) => {
+                                print!("{}", n)
+                            }
+                            _ => {
+                                unreachable!()
+                            }
+                        }
+                    }
                     //Halt
                     255 => {
                         if !self.stack.is_empty() {
