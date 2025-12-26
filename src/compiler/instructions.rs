@@ -1,6 +1,5 @@
 #[derive(Debug)]
-pub enum Instructions{
-
+pub enum Instructions {
     Add,
     Sub,
     Div,
@@ -10,6 +9,7 @@ pub enum Instructions{
     SaveVar(String),
     PushBool(bool),
     PushNumber(f32),
+    WriteLnLastOnsStack,
     WriteLastOnStack,
-    Halt
+    Halt,
 }

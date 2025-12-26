@@ -1,31 +1,19 @@
 use crate::{
-    lexer::{
-        tokenizer::Tokenizer,
-        tokens::Token
-    },
     ast::parser::Parser,
-    compiler::{
-        instructions::Instructions,
-        byte_code::Compiler
-    },
+    compiler::{byte_code::Compiler, instructions::Instructions},
     errors::{
-        lexer_errors::{
-            LexerErrorType::{
-                UnknownTokenError,
-                MoreDotInANumberError,
-                EmptyFile
-            }
-        },
-        parser_errors::ParserError
+        lexer_errors::LexerErrorType::{EmptyFile, MoreDotInANumberError, UnknownTokenError},
+        parser_errors::ParserError,
     },
-    virtual_machine::virtual_machine::VM
+    lexer::{tokenizer::Tokenizer, tokens::Token},
+    virtual_machine::virtual_machine::VM,
 };
 use std::{
-    io::{BufWriter, Write},
-    fs::File,
-    path::Path,
     fs,
-    process
+    fs::File,
+    io::{BufWriter, Write},
+    path::Path,
+    process,
 };
 
 pub fn build(dir: String, out: String) {
@@ -47,7 +35,7 @@ pub fn build(dir: String, out: String) {
                 );
                 process::exit(-1);
             }
-            EmptyFile=>{
+            EmptyFile => {
                 println!("Cannot tokenize empty file");
                 process::exit(-1);
             }
@@ -72,7 +60,7 @@ pub fn build(dir: String, out: String) {
         println!("{:?}", e);
         process::exit(-3);
     }
-    for instruction in compiler.out.iter().clone(){
+    for instruction in compiler.out.iter().clone() {
         println!("{:?}", instruction);
     }
 
@@ -85,7 +73,6 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
     let mut writer = BufWriter::new(file);
     for instr in byte_code {
         match instr {
-
             Instructions::Add => writer.write_all(&[1u8])?,
             Instructions::Sub => writer.write_all(&[2u8])?,
             Instructions::Mul => writer.write_all(&[3u8])?,
@@ -108,7 +95,7 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
                 writer.write_all(&(bytes.len() as u32).to_le_bytes())?;
                 writer.write_all(&v.as_bytes())?
             }
-            Instructions::PushBool(b)=>{
+            Instructions::PushBool(b) => {
                 writer.write_all(&[8u8])?;
                 writer.write_all(&[*b as u8])?;
             }
@@ -116,12 +103,11 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
                 writer.write_all(&[9u8])?; // opcode pro PushNumber
                 writer.write_all(&n.to_le_bytes())?;
             }
-
-            Instructions::WriteLastOnStack=>{
+            Instructions::WriteLnLastOnsStack => {
                 writer.write_all(&[20u8])?;
-            },
-
+            }
             Instructions::Halt => writer.write_all(&[255u8])?,
+            Instructions::WriteLastOnStack => todo!(),
         }
     }
     Ok(())
