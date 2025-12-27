@@ -1,3 +1,5 @@
+use crate::compiler::byte_code::indent_fn;
+use crate::compiler::instructions::Instructions;
 use crate::errors::compiler_errors::CompileError::TypeMismatch;
 use crate::statements::if_statement::ComptimeValueType::{Bool, Null};
 use crate::{
@@ -29,24 +31,23 @@ impl Compilable for IfStatement {
             }
             _ => (),
         }
+        compiler.out.push(Instructions::If(self.statements.len()));
         Ok(Null)
     }
-    fn fmt_with_indent(
-        &self,
-        _f: &mut std::fmt::Formatter<'_>,
-        _indent: usize,
-    ) -> std::fmt::Result {
-        todo!()
+    fn fmt_with_indent(&self, f: &mut std::fmt::Formatter<'_>, indent: usize) -> std::fmt::Result {
+        writeln!(f, "{}if(...)", indent_fn(indent))?;
+        let mut i = 0;
+        while i < self.statements.len() {
+            self.statements[i].fmt_with_indent(f, indent)?;
+            i += 1;
+        }
+        Ok(())
     }
 }
 
 impl Debug for IfStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("IfStatement")
-            .field("statements", &self.statements)
-            .field("expr", &self.expr)
-            .field("else_stmt", &self.else_stmt)
-            .finish()
+        self.fmt_with_indent(f, 0)
     }
 }
 

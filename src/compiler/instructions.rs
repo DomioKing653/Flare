@@ -11,5 +11,6 @@ pub enum Instructions {
     PushNumber(f32),
     WriteLnLastOnStack,
     WriteLastOnStack,
+    If(usize),
     Halt,
 }

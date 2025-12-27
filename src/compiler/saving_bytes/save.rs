@@ -109,6 +109,10 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
             Instructions::WriteLastOnStack => {
                 writer.write_all(&[21u8])?;
             }
+            Instructions::If(instruction_count) => {
+                writer.write_all(&[30])?;
+                writer.write_all(&(*instruction_count as u8).to_le_bytes())?;
+            }
             Instructions::Halt => writer.write_all(&[255u8])?,
         }
     }

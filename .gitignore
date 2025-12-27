@@ -1,4 +1,7 @@
+# editor
 /.idea
+# language
 /.cargo
-/target
 testing/.venv
+# build
+/target

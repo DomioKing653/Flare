@@ -65,7 +65,10 @@ impl Macro for WriteMacro {
                     });
                 }
                 Null => {
-                    unreachable!()
+                    return Err(TypeMismatch {
+                        expected: StringValue,
+                        found: Null,
+                    });
                 }
             }
         }

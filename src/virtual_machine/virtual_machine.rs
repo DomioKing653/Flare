@@ -175,6 +175,10 @@ impl VM {
                             }
                         }
                     }
+                    30 => {
+                        self.ip += 1;
+                        let _expr = self.pop()?;
+                    }
                     //Halt
                     255 => {
                         if !self.stack.is_empty() {
