@@ -1,4 +1,4 @@
-use crate::compiler::instructions::Instructions::WriteLastOnStack;
+use crate::compiler::instructions::Instructions::{ProcessExit, WriteLastOnStack};
 use crate::{
     compiler::{
         byte_code::{Compilable, Compiler},
@@ -73,5 +73,34 @@ impl Macro for WriteMacro {
             }
         }
         Ok(Null)
+    }
+}
+
+pub struct ProcessExitMacro;
+
+impl Macro for ProcessExitMacro {
+    fn compile(
+        &self,
+        out: &mut Compiler,
+        args: &[Box<dyn Compilable>],
+    ) -> Result<ComptimeValueType, CompileError> {
+        if args.len() != 1 {
+            return Err(CompileError::WrongMacroArgCount {
+                expected: 1,
+                found: args.len(),
+            });
+        } else {
+            let value = args[0].compile(out)?;
+            match value {
+                Number => {
+                    out.out.push(ProcessExit);
+                    return Ok(Null);
+                }
+                _ => Err(TypeMismatch {
+                    expected: Number,
+                    found: value,
+                }),
+            }
+        }
     }
 }

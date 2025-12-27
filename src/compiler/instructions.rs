@@ -15,5 +15,8 @@ pub enum Instructions {
     WriteLnLastOnStack,
     WriteLastOnStack,
     If(usize),
+    //Process
+    ProcessExit,
+    // Halt
     Halt,
 }

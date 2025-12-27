@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use crate::lexer::tokens::TokenKind::{COMMA, FALSE, SEMICOLON, TRUE};
 use crate::{
     errors::lexer_errors::LexerError,
@@ -28,9 +30,9 @@ impl Tokenizer {
             final_tokens: Vec::new(),
         }
     }
-    pub fn tokenize(&mut self) -> Result<&Vec<Token>, LexerError> {
+    pub fn tokenize(&mut self) -> Result<&Vec<Token>, Box<dyn Error>> {
         if self.source_text.is_empty() {
-            return Err(LexerError::EmptyFile);
+            return Err(LexerError::EmptyFile.into());
         }
         self.current_token = self.source_text[0];
         while self.current_token != '\0' {
@@ -96,7 +98,8 @@ impl Tokenizer {
                     } else {
                         return Err(LexerError::UnknownToken {
                             wrong_token: self.current_token.to_string(),
-                        });
+                        }
+                        .into());
                     }
                 }
             }
@@ -142,6 +145,7 @@ impl Tokenizer {
         while self.current_token.is_alphabetic()
             || self.current_token.is_numeric()
             || self.current_token == '!'
+            || self.current_token == '_'
         {
             text_buffer.push(self.current_token);
             self.advance()

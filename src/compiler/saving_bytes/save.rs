@@ -66,6 +66,7 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
         match instr {
             Instructions::Add => writer.write_all(&[1u8])?,
             Instructions::Sub => writer.write_all(&[2u8])?,
+
             Instructions::Mul => writer.write_all(&[3u8])?,
             Instructions::Div => writer.write_all(&[4u8])?,
             Instructions::PushString(s) => {
@@ -103,6 +104,9 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
             Instructions::If(instruction_count) => {
                 writer.write_all(&[30])?;
                 writer.write_all(&(*instruction_count as u8).to_le_bytes())?;
+            }
+            Instructions::ProcessExit => {
+                writer.write_all(&[35u8])?;
             }
             Instructions::Halt => writer.write_all(&[255u8])?,
         }

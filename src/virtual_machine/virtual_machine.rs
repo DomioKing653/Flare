@@ -179,6 +179,16 @@ impl VM {
                         self.ip += 1;
                         let _expr = self.pop()?;
                     }
+                    35 => {
+                        self.ip += 1;
+                        match self.pop()? {
+                            Number(n) => {
+                                println!("Exited with code {}", n);
+                                break;
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
                     //Halt
                     255 => {
                         if !self.stack.is_empty() {
