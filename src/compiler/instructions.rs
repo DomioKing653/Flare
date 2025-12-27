@@ -4,11 +4,14 @@ pub enum Instructions {
     Sub,
     Div,
     Mul,
-    PushString(String),
+    //Variables
     LoadVar(String),
     SaveVar(String),
+    //Values
+    PushString(String),
     PushBool(bool),
     PushNumber(f32),
+    //Printing
     WriteLnLastOnStack,
     WriteLastOnStack,
     If(usize),

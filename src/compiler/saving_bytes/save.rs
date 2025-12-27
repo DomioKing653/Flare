@@ -1,10 +1,7 @@
 use crate::{
     ast::parser::Parser,
     compiler::{byte_code::Compiler, instructions::Instructions},
-    errors::{
-        lexer_errors::LexerErrorType::{EmptyFile, MoreDotInANumberError, UnknownTokenError},
-        parser_errors::ParserError,
-    },
+    errors::parser_errors::ParserError,
     lexer::{tokenizer::Tokenizer, tokens::Token},
     virtual_machine::virtual_machine::VM,
 };
@@ -19,31 +16,23 @@ use std::{
 pub fn build(dir: String, out: String) {
     ensure_target_dir();
     println!("Building {}", dir);
-    //LEXER
+    /*
+     * Lexer
+     */
     let mut main_lexer: Tokenizer = Tokenizer::new(fs::read_to_string(dir).unwrap());
-    let tokens: &Vec<Token> = main_lexer
-        .tokenize()
-        .unwrap_or_else(|e| match e.error_type {
-            UnknownTokenError => {
-                println!("Unknown token:{:?}!", e.wrong_token);
-                process::exit(-1);
-            }
-            MoreDotInANumberError => {
-                println!(
-                    "Cannot have more than one dot in a number:{}!",
-                    e.wrong_token
-                );
-                process::exit(-1);
-            }
-            EmptyFile => {
-                println!("Cannot tokenize empty file");
-                process::exit(-1);
-            }
-        });
+    let tokens: &Vec<Token> = match main_lexer.tokenize() {
+        Err(e) => {
+            print!("{}", e);
+            process::exit(-1);
+        }
+        Ok(tokens) => tokens,
+    };
     for token in tokens {
         println!("{:?}", token);
     }
-    //PARSER
+    /*
+     * Parser
+     */
     let mut main_parser: Parser = Parser::new(tokens.to_vec());
     let parsed_ast = main_parser.parse().unwrap_or_else(|e| {
         match e {
@@ -54,10 +43,12 @@ pub fn build(dir: String, out: String) {
         process::exit(-2)
     });
     println!("\n{:?}", parsed_ast);
-    //VM
+    /*
+     *Bytecode
+     */
     let mut compiler = Compiler::new();
     if let Err(e) = parsed_ast.compile(&mut compiler) {
-        println!("{:?}", e);
+        println!("{}", e);
         process::exit(-3);
     }
     compiler.optimize();
