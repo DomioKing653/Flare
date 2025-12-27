@@ -3,16 +3,17 @@ use crate::ast::nodes::{BoolNode, FunctionCallNode, VariableAssignNode};
 use crate::lexer::tokens::TokenKind::{COMMA, FALSE, SEMICOLON, TRUE};
 use crate::{
     ast::nodes::{
-        BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode, VariableAccessNode,
-        VariableDefineNode,
+        BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode,
+        VariableAccessNode, VariableDefineNode,
     },
     compiler::byte_code::Compilable,
     errors::parser_errors::{ParserError, ParserError::UnexpectedToken},
     lexer::tokens::{
         Token,
         TokenKind::{
-            self, COLON, CONST, DIVIDE, EOF, EQUAL, FLOAT, IDENTIFIER, LEFTPAREN, MINUS, NUMB,
-            PLUS, RIGHTPAREN, STRING, TIMES, VALUE, VAR,
+            self, COLON, CONST, DIVIDE, EOF, EQUAL, FLOAT, IDENTIFIER,
+            LEFTPAREN, MINUS, NUMB, PLUS, RIGHTPAREN, STRING, TIMES, VALUE,
+            VAR,
         },
     },
 };
@@ -29,12 +30,15 @@ impl Parser {
             token_idx: 0,
         }
     }
+
     pub fn current_token(&self) -> &Token {
         &self.tokens[self.token_idx]
     }
+
     pub fn advance(&mut self) {
         self.token_idx += 1;
     }
+
     pub fn parse(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
         let mut program: ProgramNode = ProgramNode::new();
         while self.current_token().token_kind != EOF {
@@ -42,6 +46,7 @@ impl Parser {
         }
         Ok(Box::new(program))
     }
+
     fn parse_stmt(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
         match self.current_token().token_kind {
             VAR | CONST => {
@@ -60,7 +65,10 @@ impl Parser {
             _ => self.parse_expr(),
         }
     }
-    fn parse_var_decl_stmt(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
+
+    fn parse_var_decl_stmt(
+        &mut self,
+    ) -> Result<Box<dyn Compilable>, ParserError> {
         let is_const: bool;
         if self.current_token().token_kind == CONST {
             is_const = true;
@@ -91,9 +99,12 @@ impl Parser {
             is_const,
         }))
     }
+
     fn parse_expr(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
         let mut term = self.parse_term()?;
-        while self.current_token().token_kind == PLUS || self.current_token().token_kind == MINUS {
+        while self.current_token().token_kind == PLUS
+            || self.current_token().token_kind == MINUS
+        {
             let operator = self.current_token().token_kind.clone();
             self.advance();
             term = Box::new(BinaryOpNode {
@@ -104,9 +115,11 @@ impl Parser {
         }
         Ok(term)
     }
+
     fn parse_term(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
         let mut factor = self.parser_factor()?;
-        while self.current_token().token_kind == TIMES || self.current_token().token_kind == DIVIDE
+        while self.current_token().token_kind == TIMES
+            || self.current_token().token_kind == DIVIDE
         {
             let operator = self.current_token().token_kind.clone();
             self.advance();
@@ -118,8 +131,9 @@ impl Parser {
         }
         Ok(factor)
     }
+
     fn parser_factor(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
-        println!("self rn:{:?}",self.current_token());
+        println!("self rn:{:?}", self.current_token());
         if self.current_token().token_kind == FLOAT {
             let value = match self.current_token().token_value.parse::<f32>() {
                 Err(_) => unreachable!(),
@@ -174,8 +188,7 @@ impl Parser {
                     variable_name: value,
                 }))
             }
-        }
-        else if self.current_token().token_kind == LEFTPAREN {
+        } else if self.current_token().token_kind == LEFTPAREN {
             self.advance();
             let value = self.parse_expr()?;
             self.expect(RIGHTPAREN)?;
@@ -194,6 +207,7 @@ impl Parser {
             })
         }
     }
+
     fn expect(&mut self, token_kind: TokenKind) -> Result<Token, ParserError> {
         if self.current_token().token_kind == token_kind {
             let token = self.current_token().clone();
@@ -206,6 +220,7 @@ impl Parser {
             })
         }
     }
+
     fn peek(&self) -> TokenKind {
         let idx = self.token_idx + 1;
         self.tokens[idx].token_kind.clone()

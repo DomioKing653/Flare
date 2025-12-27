@@ -60,12 +60,12 @@ pub fn build(dir: String, out: String) {
         println!("{:?}", e);
         process::exit(-3);
     }
+    compiler.optimize();
     for instruction in compiler.out.iter().clone() {
         println!("{:?}", instruction);
     }
-
     let out_path = format!("target/{}", out);
-    compile_to_exec(out_path, &mut compiler.out).expect("TODO: panic message");
+    compile_to_exec(out_path, &mut compiler.out).expect("Cannot load binary file");
 }
 
 fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std::io::Result<()> {
