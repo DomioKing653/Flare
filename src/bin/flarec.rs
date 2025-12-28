@@ -1,22 +1,28 @@
 //Imports
-use std::env;
 use flare::{
     compiler::saving_bytes::save::{build, run_code},
-    errors::cli_errors::CommandLineError,
-    errors::cli_errors::CommandLineError::{BuildHasJustTwoArg, NoFileSpecifiedForBuild, NoSuchCommand},
+    errors::cli_errors::CommandLineError::{
+        self, BuildHasJustTwoArg, NoFileSpecifiedForBuild, NoSuchCommand,
+    },
+    errors::compiler::error_explain::ERROR_EXPLAIN,
 };
+use std::env;
 
 fn main() {
-    if let Err(e) = run_cli(){
-        eprintln!("Fatal error:{:?}!",match e{
-            BuildHasJustTwoArg =>"Build command has just two arguments",
-            NoFileSpecifiedForBuild=>"No file specified for build",
-            NoSuchCommand=>"No such command",
-        }.to_string());
+    if let Err(e) = run_cli() {
+        eprintln!(
+            "Fatal error:{:?}!",
+            match e {
+                BuildHasJustTwoArg => "Build command has just two arguments",
+                NoFileSpecifiedForBuild => "No file specified for build",
+                NoSuchCommand => "No such command",
+            }
+            .to_string()
+        );
     }
 }
 
-fn run_cli() -> Result<(), CommandLineError>{
+fn run_cli() -> Result<(), CommandLineError> {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
@@ -43,7 +49,22 @@ fn run_cli() -> Result<(), CommandLineError>{
                 return Err(BuildHasJustTwoArg);
             }
             build(args[2].clone(), args[3].clone());
-            run_code(&format!("target/{}",&args[3].clone()));
+            run_code(&format!("target/{}", &args[3].clone()));
+            Ok(())
+        }
+        "error" => {
+            if args.len() != 3 {
+                eprintln!("Usage: flarec explain <ERROR_CODE>");
+                return Ok(());
+            }
+
+            let code = args[2].as_str();
+
+            match ERROR_EXPLAIN.get(code) {
+                Some(text) => println!("{}", text),
+                None => eprintln!("Unknown error code: {}", code),
+            }
+
             Ok(())
         }
         _ => Err(NoSuchCommand),

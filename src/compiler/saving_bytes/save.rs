@@ -1,6 +1,9 @@
 use crate::{
     ast::parser::Parser,
-    compiler::{byte_code::Compiler, instructions::Instructions},
+    compiler::{
+        byte_code::{Compilable, Compiler},
+        instructions::Instructions,
+    },
     errors::parser_errors::ParserError,
     lexer::{tokenizer::Tokenizer, tokens::Token},
     virtual_machine::virtual_machine::VM,
@@ -12,6 +15,16 @@ use std::{
     path::Path,
     process,
 };
+
+fn debug_print(tokens: &Vec<Token>, ast: Box<dyn Compilable>, instructions: &Vec<Instructions>) {
+    for token in tokens {
+        println!("{:?}", token);
+    }
+    println!("{:?}", ast);
+    for instruction in instructions {
+        println!("{:?}", instruction);
+    }
+}
 
 pub fn build(dir: String, out: String) {
     ensure_target_dir();
@@ -27,9 +40,6 @@ pub fn build(dir: String, out: String) {
         }
         Ok(tokens) => tokens,
     };
-    for token in tokens {
-        println!("{:?}", token);
-    }
     /*
      * Parser
      */
@@ -42,19 +52,17 @@ pub fn build(dir: String, out: String) {
         }
         process::exit(-2)
     });
-    println!("\n{:?}", parsed_ast);
     /*
      *Bytecode
      */
     let mut compiler = Compiler::new();
     if let Err(e) = parsed_ast.compile(&mut compiler) {
-        println!("{}", e);
+        println!("\x1b[1;31m{}\x1b[0m", e);
+        println!("\x1b[1mTry:flarec error <error code> for fix\x1b[0m");
         process::exit(-3);
     }
     compiler.optimize();
-    for instruction in compiler.out.iter().clone() {
-        println!("{:?}", instruction);
-    }
+    debug_print(tokens, parsed_ast, &compiler.out);
     let out_path = format!("target/{}", out);
     compile_to_exec(out_path, &mut compiler.out).expect("Cannot load binary file");
 }
@@ -66,7 +74,6 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
         match instr {
             Instructions::Add => writer.write_all(&[1u8])?,
             Instructions::Sub => writer.write_all(&[2u8])?,
-
             Instructions::Mul => writer.write_all(&[3u8])?,
             Instructions::Div => writer.write_all(&[4u8])?,
             Instructions::PushString(s) => {
@@ -92,7 +99,7 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
                 writer.write_all(&[*b as u8])?;
             }
             Instructions::PushNumber(n) => {
-                writer.write_all(&[9u8])?; // opcode pro PushNumber
+                writer.write_all(&[9u8])?; // opcode for PushNumber
                 writer.write_all(&n.to_le_bytes())?;
             }
             Instructions::WriteLnLastOnStack => {
@@ -107,6 +114,14 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
             }
             Instructions::ProcessExit => {
                 writer.write_all(&[35u8])?;
+            }
+            Instructions::Jump(adr) => {
+                writer.write_all(&[40u8])?;
+                writer.write_all(&(*adr as u16).to_le_bytes())?;
+            }
+            Instructions::JumpIfFalse(adr) => {
+                writer.write_all(&[41u8])?;
+                writer.write_all(&(*adr as u16).to_le_bytes())?;
             }
             Instructions::Halt => writer.write_all(&[255u8])?,
         }

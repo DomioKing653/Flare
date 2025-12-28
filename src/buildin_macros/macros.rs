@@ -3,11 +3,11 @@ use crate::{
     compiler::{
         byte_code::{Compilable, Compiler},
         comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{
-            self, Bool, Null, StringValue,
+            self, Bool, StringValue, Void,
         },
         instructions::Instructions::WriteLnLastOnStack,
     },
-    errors::compiler_errors::CompileError::{self, TypeMismatch},
+    errors::compiler::compiler_errors::CompileError::{self, TypeMismatch},
 };
 use ComptimeValueType::Number;
 
@@ -37,12 +37,12 @@ impl Macro for WriteLnMacro {
                         found: Bool,
                     });
                 }
-                Null => {
+                Void => {
                     unreachable!()
                 }
             }
         }
-        Ok(Null)
+        Ok(Void)
     }
 }
 
@@ -64,15 +64,15 @@ impl Macro for WriteMacro {
                         found: Bool,
                     });
                 }
-                Null => {
+                Void => {
                     return Err(TypeMismatch {
                         expected: StringValue,
-                        found: Null,
+                        found: Void,
                     });
                 }
             }
         }
-        Ok(Null)
+        Ok(Void)
     }
 }
 
@@ -94,7 +94,7 @@ impl Macro for ProcessExitMacro {
             match value {
                 Number => {
                     out.out.push(ProcessExit);
-                    return Ok(Null);
+                    return Ok(Void);
                 }
                 _ => Err(TypeMismatch {
                     expected: Number,

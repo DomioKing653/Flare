@@ -6,8 +6,8 @@ use crate::{
     lexer::tokens::{
         Token, TokenKind,
         TokenKind::{
-            COLON, CONST, DIVIDE, EOF, EQUAL, FLOAT, FN, IDENTIFIER, LEFTPAREN, MINUS, NUMB, PLUS,
-            RIGHTPAREN, STR, TIMES, VAR,
+            CLOSINGBRACE, COLON, CONST, DIVIDE, ELSE, EOF, EQUAL, FLOAT, FN, IDENTIFIER, IF,
+            LEFTPAREN, MINUS, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STR, TIMES, VAR,
         },
     },
 };
@@ -72,6 +72,14 @@ impl Tokenizer {
                 }),
                 ')' => self.final_tokens.push(Token {
                     token_kind: RIGHTPAREN,
+                    token_value: self.current_token.to_string(),
+                }),
+                '{' => self.final_tokens.push(Token {
+                    token_kind: OPENINGBRACE,
+                    token_value: self.current_token.to_string(),
+                }),
+                '}' => self.final_tokens.push(Token {
+                    token_kind: CLOSINGBRACE,
                     token_value: self.current_token.to_string(),
                 }),
                 '-' => self.final_tokens.push(Token {
@@ -174,6 +182,14 @@ impl Tokenizer {
             "false" => Token {
                 token_value: text_buffer,
                 token_kind: FALSE,
+            },
+            "if" => Token {
+                token_kind: IF,
+                token_value: text_buffer,
+            },
+            "else" => Token {
+                token_kind: ELSE,
+                token_value: text_buffer,
             },
             _ => Token {
                 token_kind: IDENTIFIER,

@@ -7,14 +7,14 @@ use crate::{
     compiler::{
         comptime_variable_checker::{
             comptime_context::{CompileContext, ComptimeVariable},
-            comptime_value_for_check::ComptimeValueType::{self, Bool, Null, Number, StringValue},
+            comptime_value_for_check::ComptimeValueType::{self, Bool, Number, StringValue, Void},
         },
         instructions::Instructions::{
             self, Add, Div, Halt, LoadVar, Mul, PushBool, PushNumber, PushString, Sub,
         },
         optimization::optimze::optimize,
     },
-    errors::compiler_errors::CompileError::{
+    errors::compiler::compiler_errors::CompileError::{
         self, CannotInferType, TypeMismatch, VariableRecreation,
     },
     lexer::tokens::TokenKind::{self, TRUE},
@@ -144,7 +144,7 @@ impl Compilable for ProgramNode {
             program_node.compile(compiler)?;
         }
         compiler.out.push(Halt);
-        Ok(Null)
+        Ok(Void)
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         writeln!(f, "{}Program", indent_fn(indent))?;
@@ -223,7 +223,7 @@ impl Compilable for VariableDefineNode {
                     StringValue => compiler.out.push(PushString("".to_string())),
                     Number => compiler.out.push(PushNumber(0f32)),
                     Bool => compiler.out.push(PushBool(false)),
-                    Null => {
+                    Void => {
                         unreachable!()
                     }
                 }
@@ -247,7 +247,7 @@ impl Compilable for VariableDefineNode {
         compiler
             .out
             .push(Instructions::SaveVar(self.var_name.clone()));
-        Ok(Null)
+        Ok(Void)
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         write!(f, "{}var:{:?}=", indent_fn(indent), self.value_type)?;

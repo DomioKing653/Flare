@@ -17,6 +17,9 @@ pub enum Instructions {
     If(usize),
     //Process
     ProcessExit,
+    //Control flow
+    Jump(usize),
+    JumpIfFalse(usize),
     // Halt
     Halt,
 }

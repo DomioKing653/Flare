@@ -1,19 +1,19 @@
 use crate::ast::nodes::CallType::{Fn, Macro};
 use crate::ast::nodes::{BoolNode, FunctionCallNode, VariableAssignNode};
 use crate::lexer::tokens::TokenKind::{COMMA, FALSE, SEMICOLON, TRUE};
+use crate::statements::if_statement::IfStatement;
 use crate::{
     ast::nodes::{
-        BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode,
-        VariableAccessNode, VariableDefineNode,
+        BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode, VariableAccessNode,
+        VariableDefineNode,
     },
     compiler::byte_code::Compilable,
     errors::parser_errors::{ParserError, ParserError::UnexpectedToken},
     lexer::tokens::{
         Token,
         TokenKind::{
-            self, COLON, CONST, DIVIDE, EOF, EQUAL, FLOAT, IDENTIFIER,
-            LEFTPAREN, MINUS, NUMB, PLUS, RIGHTPAREN, STRING, TIMES, VALUE,
-            VAR,
+            self, CLOSINGBRACE, COLON, CONST, DIVIDE, ELSE, EOF, EQUAL, FLOAT, IDENTIFIER, IF,
+            LEFTPAREN, MINUS, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STRING, TIMES, VALUE, VAR,
         },
     },
 };
@@ -48,7 +48,7 @@ impl Parser {
     }
 
     fn parse_stmt(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
-        match self.current_token().token_kind {
+        match &self.current_token().token_kind {
             VAR | CONST => {
                 let value = self.parse_var_decl_stmt();
                 self.expect(SEMICOLON)?;
@@ -62,13 +62,54 @@ impl Parser {
                 self.expect(SEMICOLON)?;
                 Ok(Box::new(VariableAssignNode { name: id, value }))
             }
+            IF => {
+                self.advance();
+                self.expect(LEFTPAREN)?;
+                let condition = self.parse_expr()?;
+                self.expect(RIGHTPAREN)?;
+                self.expect(OPENINGBRACE)?;
+                let mut body: Vec<Box<dyn Compilable>> = Vec::new();
+                while self.current_token().token_kind != CLOSINGBRACE {
+                    if self.current_token().token_kind == EOF {
+                        return Err(ParserError::UnexpectedToken {
+                            found: "EOF".into(),
+                            expected: SEMICOLON,
+                        });
+                    }
+                    body.push(self.parse_stmt()?);
+                }
+                self.expect(CLOSINGBRACE)?;
+                if self.current_token().token_kind == ELSE {
+                    self.advance();
+                    self.expect(OPENINGBRACE)?;
+                    let mut else_body: Vec<Box<dyn Compilable>> = Vec::new();
+                    while self.current_token().token_kind != CLOSINGBRACE {
+                        if self.current_token().token_kind == EOF {
+                            return Err(ParserError::UnexpectedToken {
+                                found: "EOF".into(),
+                                expected: SEMICOLON,
+                            });
+                        }
+                        else_body.push(self.parse_stmt()?);
+                    }
+                    self.expect(CLOSINGBRACE)?;
+                    return Ok(Box::new(IfStatement {
+                        condition,
+                        then_branch: body,
+                        else_branch: Some(else_body),
+                    }));
+                }
+                return Ok(Box::new(IfStatement {
+                    condition,
+                    then_branch: body,
+                    else_branch: None,
+                }));
+            }
             _ => self.parse_expr(),
         }
     }
 
-    fn parse_var_decl_stmt(
-        &mut self,
-    ) -> Result<Box<dyn Compilable>, ParserError> {
+    fn parse_var_decl_stmt(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
         let is_const: bool;
         if self.current_token().token_kind == CONST {
             is_const = true;
@@ -102,9 +143,7 @@ impl Parser {
 
     fn parse_expr(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
         let mut term = self.parse_term()?;
-        while self.current_token().token_kind == PLUS
-            || self.current_token().token_kind == MINUS
-        {
+        while self.current_token().token_kind == PLUS || self.current_token().token_kind == MINUS {
             let operator = self.current_token().token_kind.clone();
             self.advance();
             term = Box::new(BinaryOpNode {
@@ -118,8 +157,7 @@ impl Parser {
 
     fn parse_term(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
         let mut factor = self.parser_factor()?;
-        while self.current_token().token_kind == TIMES
-            || self.current_token().token_kind == DIVIDE
+        while self.current_token().token_kind == TIMES || self.current_token().token_kind == DIVIDE
         {
             let operator = self.current_token().token_kind.clone();
             self.advance();
@@ -133,7 +171,6 @@ impl Parser {
     }
 
     fn parser_factor(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
-        println!("self rn:{:?}", self.current_token());
         if self.current_token().token_kind == FLOAT {
             let value = match self.current_token().token_value.parse::<f32>() {
                 Err(_) => unreachable!(),

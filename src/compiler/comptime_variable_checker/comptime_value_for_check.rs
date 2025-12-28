@@ -3,5 +3,5 @@ pub enum ComptimeValueType {
     Number,
     StringValue,
     Bool,
-    Null,
+    Void,
 }

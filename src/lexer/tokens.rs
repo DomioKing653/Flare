@@ -1,5 +1,5 @@
-#[derive(Debug,Clone,PartialEq)]
-pub enum TokenKind{
+#[derive(Debug, Clone, PartialEq)]
+pub enum TokenKind {
     //MATH
     PLUS,
     MINUS,
@@ -7,6 +7,8 @@ pub enum TokenKind{
     DIVIDE,
     LEFTPAREN,
     RIGHTPAREN,
+    OPENINGBRACE,
+    CLOSINGBRACE,
     EQUAL,
     //VALUES
     NUMB,
@@ -25,14 +27,15 @@ pub enum TokenKind{
     VAR,
     CONST,
     STR,
+    IF,
+    ELSE,
     //EOF
     EOF,
-    VALUE
+    VALUE,
 }
 
-#[derive(Clone)]
-#[derive(Debug)]
-pub struct Token{
+#[derive(Clone, Debug)]
+pub struct Token {
     pub token_kind: TokenKind,
-    pub token_value:String
+    pub token_value: String,
 }

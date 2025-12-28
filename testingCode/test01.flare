@@ -5,4 +5,5 @@ const world = "world";
 var final = 3/3;
 test = world + "final";
 writeLn!(final)
+var blah:x;
 write!(true,"hello")

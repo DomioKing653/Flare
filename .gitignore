@@ -2,6 +2,6 @@
 /.idea
 # language
 /.cargo
-testing/.venv
+testing/macroTest/__pycache__
 # build
 /target
