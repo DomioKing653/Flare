@@ -1,6 +1,7 @@
-if(true){
-    var x = 5+5;
+if(false){
+    writeLn!("true")
 }
 else{
-    var y = 10-5;
+    writeLn!("false")
 }
+writeLn!("end")
