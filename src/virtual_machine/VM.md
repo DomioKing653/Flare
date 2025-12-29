@@ -8,31 +8,31 @@ The Flare VM uses a **two-phase execution model**: bytecode is first parsed into
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    COMPILATION PHASE                         │
+│                    COMPILATION PHASE                        │
 ├─────────────────────────────────────────────────────────────┤
-│  Source Code (.flare)                                        │
-│       ↓                                                       │
-│  Lexer → Tokens                                              │
-│       ↓                                                       │
-│  Parser → AST                                                │
-│       ↓                                                       │
-│  Compiler → Vec<Instructions>                                │
-│       ↓                                                       │
-│  Optimizer (constant folding, jump fixing)                   │
-│       ↓                                                       │
-│  Serializer → Binary File (.bytes)                           │
+│  Source Code (.flare)                                       │
+│       ↓                                                     │
+│  Lexer → Tokens                                             │
+│       ↓                                                     │
+│  Parser → AST                                               │
+│       ↓                                                     │
+│  Compiler → Vec<Instructions>                               │
+│       ↓                                                     │
+│  Optimizer (constant folding, jump fixing)                  │
+│       ↓                                                     │
+│  Serializer → Binary File (.bytes)                          │
 └─────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
-│                     EXECUTION PHASE                          │
+│                     EXECUTION PHASE                         │
 ├─────────────────────────────────────────────────────────────┤
-│  Binary File (.bytes)                                        │
-│       ↓                                                       │
-│  BytecodeLoader (pre_parsing.rs)                             │
-│       ↓                                                       │
-│  Vec<Instructions> (in memory)                               │
-│       ↓                                                       │
-│  VM.run() - Execute instructions                             │
+│  Binary File (.bytes)                                       │
+│       ↓                                                     │
+│  BytecodeLoader (pre_parsing.rs)                            │
+│       ↓                                                     │
+│  Vec<Instructions> (in memory)                              │
+│       ↓                                                     │
+│  VM.run() - Execute instructions                            │
 └─────────────────────────────────────────────────────────────┘
 ```
 

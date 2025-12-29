@@ -193,6 +193,16 @@ impl VM {
                         _ => return Err("LessThan expects numbers".into()),
                     }
                 }
+                Instructions::Equal => {
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    if left == right {
+                        self.stack.push(Bool(true));
+                    } else {
+                        self.stack.push(Bool(false));
+                    }
+                    self.ip += 1;
+                }
                 Instructions::ReadInput => {
                     let mut input = String::new();
                     std::io::stdin()

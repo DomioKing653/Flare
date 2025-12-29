@@ -4,8 +4,10 @@ pub enum Instructions {
     Sub,
     Div,
     Mul,
+    //Comparison
     GreaterThan,
     LessThan,
+    Equal,
     //Variables
     LoadVar(String),
     SaveVar(String),
