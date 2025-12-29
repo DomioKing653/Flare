@@ -32,7 +32,8 @@ pub enum TokenKind {
     STR,
     IF,
     ELSE,
-    LOOP, //EOF
+    LOOP,
+    //EOF
     EOF,
     VALUE,
 }
