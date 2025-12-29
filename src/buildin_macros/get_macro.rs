@@ -1,4 +1,6 @@
-use crate::buildin_macros::macros::{Macro, ProcessExitMacro, WriteLnMacro, WriteMacro};
+use crate::buildin_macros::macros::{
+    Macro, ProcessExitMacro, ReadInputMacro, WriteLnMacro, WriteMacro,
+};
 use crate::errors::compiler::compiler_errors::CompileError;
 use crate::errors::compiler::compiler_errors::CompileError::UnknownMacro;
 use std::collections::HashMap;
@@ -20,6 +22,7 @@ impl MacroManager {
         register.register("writeLn", WriteLnMacro);
         register.register("write", WriteMacro);
         register.register("processExit", ProcessExitMacro);
+        register.register("readInput", ReadInputMacro);
         register
     }
     pub fn register<M: Macro + 'static>(&mut self, name: &str, mac: M) {

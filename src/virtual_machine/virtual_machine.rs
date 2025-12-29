@@ -139,6 +139,7 @@ impl VM {
                         Number(n) => print!("{}", n),
                         _ => unreachable!(),
                     }
+                    std::io::Write::flush(&mut std::io::stdout()).unwrap();
                     self.ip += 1;
                 }
 
@@ -170,7 +171,36 @@ impl VM {
                         _ => return Err("JumpIfFalse expects boolean".into()),
                     }
                 }
-
+                Instructions::GreaterThan => {
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    match (left, right) {
+                        (Number(l), Number(r)) => {
+                            self.stack.push(Bool(l > r));
+                            self.ip += 1;
+                        }
+                        _ => return Err("GreaterThan expects numbers".into()),
+                    }
+                }
+                Instructions::LessThan => {
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    match (left, right) {
+                        (Number(l), Number(r)) => {
+                            self.stack.push(Bool(l < r));
+                            self.ip += 1;
+                        }
+                        _ => return Err("LessThan expects numbers".into()),
+                    }
+                }
+                Instructions::ReadInput => {
+                    let mut input = String::new();
+                    std::io::stdin()
+                        .read_line(&mut input)
+                        .expect("Failed to read input");
+                    self.stack.push(StringValue(input.trim().to_string()));
+                    self.ip += 1;
+                }
                 Instructions::Halt => {
                     if !self.stack.is_empty() {
                         println!("{:?}", self.stack[0]);

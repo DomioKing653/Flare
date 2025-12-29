@@ -1,4 +1,4 @@
-use crate::compiler::instructions::Instructions::{ProcessExit, WriteLastOnStack};
+use crate::compiler::instructions::Instructions::{ProcessExit, ReadInput, WriteLastOnStack};
 use crate::{
     compiler::{
         byte_code::{Compilable, Compiler},
@@ -98,6 +98,36 @@ impl Macro for ProcessExitMacro {
                 }
                 _ => Err(TypeMismatch {
                     expected: Number,
+                    found: value,
+                }),
+            }
+        }
+    }
+}
+
+pub struct ReadInputMacro;
+
+impl Macro for ReadInputMacro {
+    fn compile(
+        &self,
+        out: &mut Compiler,
+        args: &[Box<dyn Compilable>],
+    ) -> Result<ComptimeValueType, CompileError> {
+        if args.len() != 1 {
+            return Err(CompileError::WrongMacroArgCount {
+                expected: 1,
+                found: args.len(),
+            });
+        } else {
+            let value = args[0].compile(out)?;
+            match value {
+                StringValue => {
+                    out.out.push(WriteLastOnStack);
+                    out.out.push(ReadInput);
+                    return Ok(StringValue);
+                }
+                _ => Err(TypeMismatch {
+                    expected: StringValue,
                     found: value,
                 }),
             }

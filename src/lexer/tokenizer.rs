@@ -7,7 +7,7 @@ use crate::{
         Token, TokenKind,
         TokenKind::{
             CLOSINGBRACE, COLON, CONST, DIVIDE, ELSE, EOF, EQUAL, FLOAT, FN, IDENTIFIER, IF,
-            LEFTPAREN, MINUS, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STR, TIMES, VAR,
+            LEFTPAREN, LOOP, MINUS, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STR, TIMES, VAR,
         },
     },
 };
@@ -92,6 +92,14 @@ impl Tokenizer {
                 }),
                 '/' => self.final_tokens.push(Token {
                     token_kind: DIVIDE,
+                    token_value: self.current_token.to_string(),
+                }),
+                '>' => self.final_tokens.push(Token {
+                    token_kind: TokenKind::GREATER,
+                    token_value: self.current_token.to_string(),
+                }),
+                '<' => self.final_tokens.push(Token {
+                    token_kind: TokenKind::LESS,
                     token_value: self.current_token.to_string(),
                 }),
                 _ => {
@@ -189,6 +197,10 @@ impl Tokenizer {
             },
             "else" => Token {
                 token_kind: ELSE,
+                token_value: text_buffer,
+            },
+            "loop" => Token {
+                token_kind: LOOP,
                 token_value: text_buffer,
             },
             _ => Token {

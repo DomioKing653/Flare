@@ -123,6 +123,15 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
                 writer.write_all(&[41u8])?;
                 writer.write_all(&(*adr as u16).to_le_bytes())?;
             }
+            Instructions::GreaterThan => {
+                writer.write_all(&[42u8])?;
+            }
+            Instructions::LessThan => {
+                writer.write_all(&[43u8])?;
+            }
+            Instructions::ReadInput => {
+                writer.write_all(&[44u8])?;
+            }
             Instructions::Halt => writer.write_all(&[255u8])?,
         }
     }

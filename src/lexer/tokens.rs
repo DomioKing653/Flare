@@ -10,6 +10,9 @@ pub enum TokenKind {
     OPENINGBRACE,
     CLOSINGBRACE,
     EQUAL,
+    //BOOLEAN
+    GREATER,
+    LESS,
     //VALUES
     NUMB,
     FLOAT,
@@ -29,7 +32,7 @@ pub enum TokenKind {
     STR,
     IF,
     ELSE,
-    //EOF
+    LOOP, //EOF
     EOF,
     VALUE,
 }

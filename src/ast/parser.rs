@@ -12,8 +12,9 @@ use crate::{
     lexer::tokens::{
         Token,
         TokenKind::{
-            self, CLOSINGBRACE, COLON, CONST, DIVIDE, ELSE, EOF, EQUAL, FLOAT, IDENTIFIER, IF,
-            LEFTPAREN, MINUS, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STRING, TIMES, VALUE, VAR,
+            self, CLOSINGBRACE, COLON, CONST, DIVIDE, ELSE, EOF, EQUAL, FLOAT, GREATER, IDENTIFIER,
+            IF, LEFTPAREN, LESS, MINUS, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STRING, TIMES, VALUE,
+            VAR,
         },
     },
 };
@@ -143,7 +144,11 @@ impl Parser {
 
     fn parse_expr(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
         let mut term = self.parse_term()?;
-        while self.current_token().token_kind == PLUS || self.current_token().token_kind == MINUS {
+        while self.current_token().token_kind == PLUS
+            || self.current_token().token_kind == MINUS
+            || self.current_token().token_kind == GREATER
+            || self.current_token().token_kind == LESS
+        {
             let operator = self.current_token().token_kind.clone();
             self.advance();
             term = Box::new(BinaryOpNode {

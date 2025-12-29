@@ -4,6 +4,8 @@ pub enum Instructions {
     Sub,
     Div,
     Mul,
+    GreaterThan,
+    LessThan,
     //Variables
     LoadVar(String),
     SaveVar(String),
@@ -20,6 +22,8 @@ pub enum Instructions {
     //Control flow
     Jump(usize),
     JumpIfFalse(usize),
+
+    ReadInput,
     // Halt
     Halt,
 }

@@ -73,6 +73,9 @@ impl BytecodeLoader {
                     Instructions::JumpIfFalse(addr)
                 }
 
+                42 => Instructions::GreaterThan,
+                43 => Instructions::LessThan,
+                44 => Instructions::ReadInput,
                 255 => Instructions::Halt,
 
                 _ => {
@@ -84,7 +87,7 @@ impl BytecodeLoader {
 
             instructions.push(instruction);
         }
-
+        println!("{:?}", instructions);
         Ok(instructions)
     }
 

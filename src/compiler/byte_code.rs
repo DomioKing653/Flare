@@ -126,6 +126,30 @@ impl Compilable for BinaryOpNode {
                     })
                 }
             }
+            TokenKind::GREATER => {
+                if let Number = right {
+                    compiler.out.push(Instructions::GreaterThan);
+                    Ok(Bool)
+                } else {
+                    Err(CompileError::InvalidBinaryOp {
+                        op: ">",
+                        left,
+                        right,
+                    })
+                }
+            }
+            TokenKind::LESS => {
+                if let Number = right {
+                    compiler.out.push(Instructions::LessThan);
+                    Ok(Bool)
+                } else {
+                    Err(CompileError::InvalidBinaryOp {
+                        op: "<",
+                        left,
+                        right,
+                    })
+                }
+            }
             _ => {
                 unreachable!()
             }

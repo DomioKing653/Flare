@@ -19,7 +19,7 @@ pub static ERROR_EXPLAIN: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(
         "Cannot infer type for variable.\n\
          Example:\n\
         ```\n\
-         let x; // no type, no initial value so flare cannot infer the type\n\
+         var x; // no type, no initial value so flare cannot infer the type\n\
         ```\n\
          Fix: Specify type explicitly or assign a value.",
     );
@@ -29,29 +29,39 @@ pub static ERROR_EXPLAIN: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(
         "Undefined type used.\n\
          Example:\n\
         ```\n\
-         let x: MyType; // MyType not declared\n\
+         var x: MyType; // MyType not declared\n\
         ```\n\
-         Fix: Define the type before use.",
+         Fix: Use only built-in types.",
     );
 
     m.insert(
         "E0004",
         "Type mismatch.\n\
-         Example: let x: i32 = true; // i32 vs bool\n\
-         Fix: Ensure the assigned value matches expected type.",
+         Example:
+        ```\n\
+         var foo: bool = true;
+         writeLn!(foo); // bool vs string\n\
+        ```\n\
+         Fix: Ensure that the used value matches expected type.",
     );
 
     m.insert(
         "E0005",
         "Invalid binary operation.\n\
-         Example: true + 5\n\
-         Fix: Only use operators allowed for operand types.",
+         Example:
+        ```\n\
+         true + 5\n\
+        ```\n\
+         Fix: '+' is invalid operator for bool.",
     );
 
     m.insert(
         "E0006",
         "Undefined variable.\n\
-         Example: print(x); // x not declared\n\
+         Example:
+        ```\n\
+         writeLn!(x); // x not declared\n\
+        ```\n\
          Fix: Declare variable before using it.",
     );
 
@@ -71,7 +81,7 @@ pub static ERROR_EXPLAIN: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(
         "Constant without value.\n\
          Example:\n\
          ```\n\
-         const PI: number;\n\
+         const PI: numb;\n\
          ```\n\
          Fix: Assign a value when declaring a constant.",
     );
@@ -90,7 +100,10 @@ pub static ERROR_EXPLAIN: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(
     m.insert(
         "E0010",
         "Wrong macro argument count.\n\
-         Example: my_macro!(1, 2, 3); // expected 2 args\n\
+         Example:
+        ```\n\
+         my_macro!(1, 2, 3); // expected 2 args\n\
+        ```\n\
          Fix: Call macro with correct number of arguments.",
     );
     m
