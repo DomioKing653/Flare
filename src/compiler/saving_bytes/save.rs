@@ -14,6 +14,7 @@ use std::{
     io::{BufWriter, Write},
     path::Path,
     process,
+    time::Instant,
 };
 
 fn debug_print(tokens: &Vec<Token>, ast: Box<dyn Compilable>, instructions: &Vec<Instructions>) {
@@ -26,9 +27,23 @@ fn debug_print(tokens: &Vec<Token>, ast: Box<dyn Compilable>, instructions: &Vec
     }
 }
 
-pub fn build(dir: String, out: String) {
+pub fn build(dir: String, out: String, debug: bool) {
     ensure_target_dir();
-    println!("Building {}", dir);
+
+    // Start timing
+    let start_time = Instant::now();
+
+    // Get the absolute path for display
+    let src_path = std::path::Path::new(&dir)
+        .canonicalize()
+        .unwrap_or_else(|_| std::path::PathBuf::from(&dir));
+
+    println!(
+        "\x1b[1;32mBuilding\x1b[0m {} -> target/{}",
+        src_path.display(),
+        out
+    );
+
     /*
      * Lexer
      */
@@ -62,9 +77,20 @@ pub fn build(dir: String, out: String) {
         process::exit(-3);
     }
     compiler.optimize();
-    debug_print(tokens, parsed_ast, &compiler.out);
+
+    // Print debug information if debug flag is enabled
+    if debug {
+        debug_print(tokens, parsed_ast, &compiler.out);
+    }
+
     let out_path = format!("target/{}", out);
     compile_to_exec(out_path, &mut compiler.out).expect("Cannot load binary file");
+
+    // Calculate elapsed time and show success message
+    let elapsed = start_time.elapsed();
+    let seconds = elapsed.as_secs_f32();
+
+    println!("\x1b[1;32mFinished\x1b[0m in {:.3} seconds", seconds);
 }
 
 fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std::io::Result<()> {
@@ -108,12 +134,12 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
             Instructions::WriteLastOnStack => {
                 writer.write_all(&[21u8])?;
             }
-            Instructions::If(instruction_count) => {
-                writer.write_all(&[30])?;
-                writer.write_all(&(*instruction_count as u8).to_le_bytes())?;
-            }
             Instructions::ProcessExit => {
                 writer.write_all(&[35u8])?;
+            }
+            Instructions::JumpIfTrue(adr) => {
+                writer.write_all(&[39u8])?;
+                writer.write_all(&(*adr as u16).to_le_bytes())?;
             }
             Instructions::Jump(adr) => {
                 writer.write_all(&[40u8])?;

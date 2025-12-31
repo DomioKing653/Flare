@@ -143,10 +143,6 @@ impl VM {
                     self.ip += 1;
                 }
 
-                Instructions::If(_) => {
-                    self.ip += 1;
-                }
-
                 Instructions::ProcessExit => match self.pop()? {
                     Number(n) => {
                         println!("Exited with code {}", n);
@@ -155,6 +151,18 @@ impl VM {
                     _ => unreachable!(),
                 },
 
+                Instructions::JumpIfTrue(addr) => {
+                    let cond = self.pop()?;
+                    match cond {
+                        Bool(true) => {
+                            self.ip = addr;
+                        }
+                        Bool(false) => {
+                            self.ip += 1;
+                        }
+                        _ => return Err("JumpIfFalse expects boolean".into()),
+                    }
+                }
                 Instructions::Jump(addr) => {
                     self.ip = addr;
                 }

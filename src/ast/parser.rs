@@ -1,7 +1,8 @@
 use crate::ast::nodes::CallType::{Fn, Macro};
 use crate::ast::nodes::{BoolNode, FunctionCallNode, VariableAssignNode};
+use crate::ast::statements::if_statement::IfStatement;
+use crate::ast::statements::while_statement::WhileStatement;
 use crate::lexer::tokens::TokenKind::{COMMA, FALSE, SEMICOLON, TRUE};
-use crate::statements::if_statement::IfStatement;
 use crate::{
     ast::nodes::{
         BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode, VariableAccessNode,
@@ -14,7 +15,7 @@ use crate::{
         TokenKind::{
             self, CLOSINGBRACE, COLON, CONST, DIVIDE, ELSE, EOF, EQUAL, FLOAT, GREATER, IDENTIFIER,
             IF, LEFTPAREN, LESS, MINUS, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STRING, TIMES, VALUE,
-            VAR,
+            VAR, WHILE,
         },
     },
 };
@@ -105,6 +106,25 @@ impl Parser {
                     then_branch: body,
                     else_branch: None,
                 }));
+            }
+            WHILE => {
+                self.advance();
+                self.expect(LEFTPAREN)?;
+                let condition = self.parse_expr()?;
+                self.expect(RIGHTPAREN)?;
+                self.expect(OPENINGBRACE)?;
+                let mut body: Vec<Box<dyn Compilable>> = Vec::new();
+                while self.current_token().token_kind != CLOSINGBRACE {
+                    if self.current_token().token_kind == EOF {
+                        return Err(ParserError::UnexpectedToken {
+                            found: "EOF".into(),
+                            expected: SEMICOLON,
+                        });
+                    }
+                    body.push(self.parse_stmt()?);
+                }
+                self.expect(CLOSINGBRACE)?;
+                return Ok(Box::new(WhileStatement { condition, body }));
             }
             _ => self.parse_expr(),
         }

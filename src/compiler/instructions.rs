@@ -18,14 +18,14 @@ pub enum Instructions {
     //Printing
     WriteLnLastOnStack,
     WriteLastOnStack,
-    If(usize),
     //Process
     ProcessExit,
     //Control flow
     Jump(usize),
     JumpIfFalse(usize),
-
+    JumpIfTrue(usize),
     ReadInput,
+
     // Halt
     Halt,
 }

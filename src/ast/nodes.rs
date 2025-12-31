@@ -1,11 +1,11 @@
+use crate::compiler::byte_code::Compilable;
 use crate::lexer::tokens::TokenKind;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
-use crate::compiler::byte_code::Compilable;
 
-pub enum CallType{
+pub enum CallType {
     Macro,
-    Fn
+    Fn,
 }
 pub struct ProgramNode {
     pub program_nodes: Vec<Box<dyn Compilable>>,
@@ -64,27 +64,39 @@ impl fmt::Debug for FloatNode {
     }
 }
 /*
-String node
-*/
+ * String node
+ */
 
-pub struct StringNode{
-    pub value:String
+pub struct StringNode {
+    pub value: String,
 }
 impl Debug for StringNode {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         self.fmt_with_indent(f, 0)
     }
 }
-
-pub struct BoolNode{
-    pub value:TokenKind
+/*
+ * Bool node
+ */
+pub struct BoolNode {
+    pub value: TokenKind,
 }
 impl Debug for BoolNode {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         self.fmt_with_indent(f, 0)
     }
 }
-//VARIABLES
+/*
+ * Array node
+ */
+pub struct ArrayNode {
+    pub elements: Vec<Box<dyn Compilable>>,
+}
+impl Debug for ArrayNode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        self.fmt_with_indent(f, 0)
+    }
+}
 /*
 Variable Access
 */
@@ -101,29 +113,29 @@ impl fmt::Debug for VariableAccessNode {
 /*
 Variable Define
 */
-pub struct VariableDefineNode{
-    pub var_name:String,
-    pub value_type:Option<String>,
-    pub value:Option<Box<dyn Compilable>>,
-    pub is_const:bool
+pub struct VariableDefineNode {
+    pub var_name: String,
+    pub value_type: Option<String>,
+    pub value: Option<Box<dyn Compilable>>,
+    pub is_const: bool,
 }
 impl Debug for VariableDefineNode {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        self.fmt_with_indent(f,0)
+        self.fmt_with_indent(f, 0)
     }
 }
 /*
 Variable assign node
 */
 
-pub struct VariableAssignNode{
-    pub name:String,
-    pub value:Box<dyn Compilable>
+pub struct VariableAssignNode {
+    pub name: String,
+    pub value: Box<dyn Compilable>,
 }
 
 impl Debug for VariableAssignNode {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        self.fmt_with_indent(f,0)
+        self.fmt_with_indent(f, 0)
     }
 }
 
@@ -132,13 +144,13 @@ FunctionCallNode
 */
 
 pub struct FunctionCallNode {
-    pub args:Vec<Box<dyn Compilable>>,
-    pub name:String,
-    pub call_type: CallType
+    pub args: Vec<Box<dyn Compilable>>,
+    pub name: String,
+    pub call_type: CallType,
 }
 
 impl Debug for FunctionCallNode {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        self.fmt_with_indent(f,0)
+        self.fmt_with_indent(f, 0)
     }
 }

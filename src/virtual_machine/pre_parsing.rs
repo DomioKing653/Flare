@@ -55,14 +55,11 @@ impl BytecodeLoader {
 
                 20 => Instructions::WriteLnLastOnStack,
                 21 => Instructions::WriteLastOnStack,
-
-                30 => {
-                    let count = self.read_u8()? as usize;
-                    Instructions::If(count)
-                }
-
                 35 => Instructions::ProcessExit,
-
+                39 => {
+                    let addr = self.read_u16()? as usize;
+                    Instructions::JumpIfTrue(addr)
+                }
                 40 => {
                     let addr = self.read_u16()? as usize;
                     Instructions::Jump(addr)
@@ -88,7 +85,6 @@ impl BytecodeLoader {
 
             instructions.push(instruction);
         }
-        println!("{:?}", instructions);
         Ok(instructions)
     }
 

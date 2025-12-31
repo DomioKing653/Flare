@@ -1,2 +1,2 @@
 [build]
-rustflags = ["-Adead_code"]
+rustflags = ["-Adead_code","-Aunused_variables"]

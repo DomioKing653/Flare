@@ -1,4 +1,5 @@
-if(3>5){
+var x = 6;
+if(x>5){
     writeLn!("true")
 }
 else{

@@ -1,7 +1,7 @@
 use crate::{
     ast::nodes::{
-        BinaryOpNode, BoolNode, CallType, FloatNode, FunctionCallNode, NumberNode, ProgramNode,
-        StringNode, VariableAccessNode, VariableAssignNode, VariableDefineNode,
+        ArrayNode, BinaryOpNode, BoolNode, CallType, FloatNode, FunctionCallNode, NumberNode,
+        ProgramNode, StringNode, VariableAccessNode, VariableAssignNode, VariableDefineNode,
     },
     buildin_macros::get_macro::MacroManager,
     compiler::{
@@ -328,6 +328,22 @@ impl Compilable for VariableAssignNode {
         writeln!(f, "{}{}=", indent_fn(indent), self.name)?;
         self.value.fmt(f)?;
         Ok(())
+    }
+}
+/*
+ * Array node
+ */
+impl Compilable for ArrayNode {
+    fn compile(&self, _compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
+        todo!()
+    }
+
+    fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
+        writeln!(f, "{}Array [", " ".repeat(indent))?;
+        for element in &self.elements {
+            element.fmt_with_indent(f, indent + 2)?;
+        }
+        writeln!(f, "{}]", " ".repeat(indent))
     }
 }
 impl Compilable for FunctionCallNode {

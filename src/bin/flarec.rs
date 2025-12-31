@@ -31,10 +31,8 @@ fn run_cli() -> Result<(), CommandLineError> {
 
     match args[1].as_str() {
         "build" => {
-            if args.len() != 4 {
-                return Err(BuildHasJustTwoArg);
-            }
-            build(args[2].clone(), args[3].clone());
+            let (debug, source, output) = parse_build_args(&args[2..])?;
+            build(source, output, debug);
             Ok(())
         }
         "run" => {
@@ -45,11 +43,9 @@ fn run_cli() -> Result<(), CommandLineError> {
             Ok(())
         }
         "exec" => {
-            if args.len() != 4 {
-                return Err(BuildHasJustTwoArg);
-            }
-            build(args[2].clone(), args[3].clone());
-            run_code(&format!("target/{}", &args[3].clone()));
+            let (debug, source, output) = parse_build_args(&args[2..])?;
+            build(source.clone(), output.clone(), debug);
+            run_code(&format!("target/{}", &output));
             Ok(())
         }
         "error" => {
@@ -69,4 +65,36 @@ fn run_cli() -> Result<(), CommandLineError> {
         }
         _ => Err(NoSuchCommand),
     }
+}
+
+fn parse_build_args(args: &[String]) -> Result<(bool, String, String), CommandLineError> {
+    let mut debug = false;
+    let mut source = String::new();
+    let mut output = String::new();
+    let mut i = 0;
+
+    while i < args.len() {
+        match args[i].as_str() {
+            "-d" => {
+                debug = true;
+                i += 1;
+            }
+            _ => {
+                if source.is_empty() {
+                    source = args[i].clone();
+                } else if output.is_empty() {
+                    output = args[i].clone();
+                } else {
+                    return Err(BuildHasJustTwoArg);
+                }
+                i += 1;
+            }
+        }
+    }
+
+    if source.is_empty() || output.is_empty() {
+        return Err(BuildHasJustTwoArg);
+    }
+
+    Ok((debug, source, output))
 }
