@@ -32,13 +32,10 @@ impl Macro for WriteLnMacro {
             match value {
                 StringValue | Number => compiler.out.push(WriteLnLastOnStack),
                 Bool => {
-                    return Err(TypeMismatch {
-                        expected: StringValue,
-                        found: Bool,
-                    });
+                    return Err(CompileError::ExpectedPrintable { found: Bool });
                 }
                 Void => {
-                    unreachable!()
+                    return Err(CompileError::ExpectedPrintable { found: Void });
                 }
             }
         }
@@ -59,16 +56,10 @@ impl Macro for WriteMacro {
             match value {
                 StringValue | Number => compiler.out.push(WriteLastOnStack),
                 Bool => {
-                    return Err(TypeMismatch {
-                        expected: StringValue,
-                        found: Bool,
-                    });
+                    return Err(CompileError::ExpectedPrintable { found: Bool });
                 }
                 Void => {
-                    return Err(TypeMismatch {
-                        expected: StringValue,
-                        found: Void,
-                    });
+                    return Err(CompileError::ExpectedPrintable { found: Void });
                 }
             }
         }

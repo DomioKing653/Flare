@@ -38,4 +38,6 @@ pub enum CompileError {
     ConstReassignment { name: String },
     #[error("[E0010]Wrong macro argument count: expected {expected}, found {found}")]
     WrongMacroArgCount { expected: usize, found: usize },
+    #[error("Expected printable but found {found:?}")]
+    ExpectedPrintable { found: ComptimeValueType },
 }

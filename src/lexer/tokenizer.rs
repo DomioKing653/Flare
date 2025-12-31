@@ -7,7 +7,8 @@ use crate::{
         Token, TokenKind,
         TokenKind::{
             CLOSINGBRACE, COLON, CONST, DIVIDE, ELSE, EOF, EQUAL, FLOAT, FN, IDENTIFIER, IF,
-            LEFTPAREN, LOOP, MINUS, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STR, TIMES, VAR, WHILE,
+            IMPORT, LEFTPAREN, LOOP, MINUS, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STR, TIMES, VAR,
+            WHILE,
         },
     },
 };
@@ -205,6 +206,10 @@ impl Tokenizer {
             },
             "while" => Token {
                 token_kind: WHILE,
+                token_value: text_buffer,
+            },
+            "import" => Token {
+                token_kind: IMPORT,
                 token_value: text_buffer,
             },
             _ => Token {
