@@ -83,7 +83,7 @@ pub fn build(dir: String, out: String, debug: bool) {
         debug_print(tokens, parsed_ast, &compiler.out);
     }
 
-    let out_path = format!("target/{}", out);
+    let out_path = format!("out/{}", out);
     compile_to_exec(out_path, &mut compiler.out).expect("Cannot load binary file");
 
     // Calculate elapsed time and show success message
@@ -173,7 +173,7 @@ pub fn run_code(path: &str) {
     vm.run().unwrap()
 }
 fn ensure_target_dir() {
-    let target = Path::new("target");
+    let target = Path::new("out");
     if !target.exists() {
         fs::create_dir(target).expect("Cannot create target directory");
     }

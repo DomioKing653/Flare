@@ -18,14 +18,19 @@ pub struct VM {
 }
 
 impl VM {
-    pub fn from_file(path: &str) -> Result<Self, Box<dyn Error>> {
-        let instructions = BytecodeLoader::from_file(path)?;
+    pub fn from_bytes(bytes: Vec<u8>) -> Result<Self, Box<dyn std::error::Error>> {
+        let instructions = BytecodeLoader::from_bytes(bytes)?;
         Ok(Self {
             ip: 0,
             stack: Vec::new(),
             instructions,
-            variables: HashMap::new(),
+            variables: std::collections::HashMap::new(),
         })
+    }
+
+    pub fn from_file(path: &str) -> Result<Self, Box<dyn Error>> {
+        let bytes = std::fs::read(path)?;
+        Self::from_bytes(bytes)
     }
 
     pub fn run(&mut self) -> Result<(), String> {

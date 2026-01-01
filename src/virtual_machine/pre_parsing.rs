@@ -7,10 +7,13 @@ pub struct BytecodeLoader {
 }
 
 impl BytecodeLoader {
-    pub fn from_file(path: &str) -> Result<Vec<Instructions>, Box<dyn Error>> {
-        let bytes = fs::read(path).map_err(|e| format!("Unable to load file {}: {}", path, e))?;
+    pub fn from_bytes(bytes: Vec<u8>) -> Result<Vec<Instructions>, Box<dyn std::error::Error>> {
         let mut loader = Self { bytes, pos: 0 };
         loader.parse()
+    }
+    pub fn from_file(path: &str) -> Result<Vec<Instructions>, Box<dyn Error>> {
+        let bytes = fs::read(path).map_err(|e| format!("Unable to load file {}: {}", path, e))?;
+        Self::from_bytes(bytes)
     }
 
     fn parse(&mut self) -> Result<Vec<Instructions>, Box<dyn Error>> {

@@ -45,7 +45,7 @@ fn run_cli() -> Result<(), CommandLineError> {
         "exec" => {
             let (debug, source, output) = parse_build_args(&args[2..])?;
             build(source.clone(), output.clone(), debug);
-            run_code(&format!("target/{}", &output));
+            run_code(&format!("out/{}", &output));
             Ok(())
         }
         "error" => {

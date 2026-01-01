@@ -1,2 +1,2 @@
-var userInput:string = readInput!("Enter your name:");
+const userInput:string = readInput!("Enter your name:");
 write!("your name is ",userInput)
