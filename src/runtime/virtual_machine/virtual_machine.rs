@@ -1,7 +1,7 @@
 use {
     crate::{
         compiler::instructions::Instructions,
-        virtual_machine::{
+        runtime::virtual_machine::{
             pre_parsing::BytecodeLoader,
             value::Value::{self, Bool, Number, StringValue},
             variables::variable::Variable,

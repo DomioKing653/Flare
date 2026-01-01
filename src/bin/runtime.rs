@@ -1,4 +1,4 @@
-use flare::virtual_machine::virtual_machine::VM;
+use flare::runtime::virtual_machine::virtual_machine::VM;
 
 static PROGRAM: &[u8] = include_bytes!("../../out/program.bin");
 

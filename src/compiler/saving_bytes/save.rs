@@ -6,7 +6,7 @@ use crate::{
     },
     errors::parser_errors::ParserError,
     lexer::{tokenizer::Tokenizer, tokens::Token},
-    virtual_machine::virtual_machine::VM,
+    runtime::virtual_machine::virtual_machine::VM,
 };
 use std::{
     fs,

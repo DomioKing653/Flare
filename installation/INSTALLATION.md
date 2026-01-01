@@ -1,4 +1,11 @@
+# Installing flare
+1. Install rust from [Rust](https://rust-lang.org)
+2. On windows(if using PowerShell) run [installation skript](install.ps1) or at Mac and linux run
+
+
 # Building flare
+If you really wanna do it yourselfm, here are the steps:
+
 1. Install rust from [Rust](https://rust-lang.org)
 
 2. Clone repo 
@@ -12,4 +19,4 @@ $ cargo build --bin flarec --release
 ```
 4. Put ```./target/release/flarec.exe``` to enviroment variables
 
-5. than u can run ```flarec build ...``` from anywhere
+5. than you can run ```flarec build ...``` from anywhere

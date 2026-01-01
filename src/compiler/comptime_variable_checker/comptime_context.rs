@@ -1,6 +1,6 @@
 use crate::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType;
 use crate::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{
-    Bool, Number, StringValue,
+    Bool, Number, StringValue, Void,
 };
 use crate::errors::compiler::compiler_errors::CompileError;
 use crate::errors::compiler::compiler_errors::CompileError::UndefinedType;
@@ -20,6 +20,7 @@ impl CompileContext {
             "numb" => Ok(Number),
             "string" => Ok(StringValue),
             "bool" => Ok(Bool),
+            "void" => Ok(Void),
             _ => Err(UndefinedType {
                 undefined_type: type_to_identify.to_string(),
             }),

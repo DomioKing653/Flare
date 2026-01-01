@@ -7,7 +7,9 @@ use crate::{
     compiler::{
         comptime_variable_checker::{
             comptime_context::{CompileContext, ComptimeVariable},
-            comptime_value_for_check::ComptimeValueType::{self, Bool, Number, StringValue, Void},
+            comptime_value_for_check::ComptimeValueType::{
+                self, Array, Bool, Number, StringValue, Void,
+            },
         },
         instructions::Instructions::{
             self, Add, Div, Halt, LoadVar, Mul, PushBool, PushNumber, PushString, Sub,
@@ -247,6 +249,9 @@ impl Compilable for VariableDefineNode {
                     StringValue => compiler.out.push(PushString("".to_string())),
                     Number => compiler.out.push(PushNumber(0f32)),
                     Bool => compiler.out.push(PushBool(false)),
+                    Array(t) => {
+                        todo!()
+                    }
                     Void => {
                         unreachable!()
                     }

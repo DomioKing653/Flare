@@ -1,4 +1,4 @@
-use crate::virtual_machine::value::Value;
+use crate::runtime::virtual_machine::value::Value;
 #[derive(Debug)]
 pub struct Variable {
     pub value: Value,

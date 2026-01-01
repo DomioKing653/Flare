@@ -12,9 +12,9 @@ This main git repo for flare programming language.
 
 ## Staring with flare
 
-For now flare can be only build from source. For more info look at the **[Building from source](docs/BUILDING.md)**.
+For now flare can be only build from source or be installed via our installer. For more info look at the **[Installing flare](installation/BUILDING.md)**.
 
-When you are ready you may look at the [Getting started](docs/GETTING_STARTED.md)
+When you are ready you may look at the **[Getting started](docs/GETTING_STARTED.md)**
 
 ### Language documentation
 Language documentation, tutorials etc. is at **[docs](docs)**.

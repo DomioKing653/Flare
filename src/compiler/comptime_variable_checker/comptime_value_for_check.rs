@@ -4,4 +4,5 @@ pub enum ComptimeValueType {
     StringValue,
     Bool,
     Void,
+    Array(Box<ComptimeValueType>),
 }

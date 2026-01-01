@@ -3,7 +3,7 @@ use crate::{
     compiler::{
         byte_code::{Compilable, Compiler},
         comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{
-            self, Bool, StringValue, Void,
+            self, Array, Bool, StringValue, Void,
         },
         instructions::Instructions::WriteLnLastOnStack,
     },
@@ -37,6 +37,9 @@ impl Macro for WriteLnMacro {
                 Void => {
                     return Err(CompileError::ExpectedPrintable { found: Void });
                 }
+                Array(t) => {
+                    return Err(CompileError::ExpectedPrintable { found: Array(t) });
+                }
             }
         }
         Ok(Void)
@@ -60,6 +63,9 @@ impl Macro for WriteMacro {
                 }
                 Void => {
                     return Err(CompileError::ExpectedPrintable { found: Void });
+                }
+                Array(t) => {
+                    return Err(CompileError::ExpectedPrintable { found: Array(t) });
                 }
             }
         }
