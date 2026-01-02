@@ -1,4 +1,4 @@
-use crate::compiler::{
+use crate::backend::compiler::{
     instructions::Instructions, optimization::constant_folding::constant_folding,
 };
 use std::collections::HashMap;

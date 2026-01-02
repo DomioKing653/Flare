@@ -1,6 +1,6 @@
-use crate::compiler::byte_code::{Compiler, indent_fn};
-use crate::compiler::instructions::Instructions;
-use crate::{
+use crate::backend::{
+    compiler::byte_code::{Compiler, indent_fn},
+    compiler::instructions::Instructions,
     compiler::{
         byte_code::Compilable,
         comptime_variable_checker::comptime_value_for_check::ComptimeValueType,

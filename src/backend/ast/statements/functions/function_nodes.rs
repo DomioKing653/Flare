@@ -1,11 +1,12 @@
 use std::fmt::Debug;
 
-use crate::{
+use crate::backend::{
     ast::statements::functions::args_node::FunctionArgs,
     compiler::{
-        byte_code::Compilable,
+        byte_code::{Compilable, Compiler},
         comptime_variable_checker::comptime_value_for_check::ComptimeValueType,
     },
+    errors::compiler::compiler_errors::CompileError,
 };
 pub struct FunctionDefineNode {
     pub args: Vec<FunctionArgs>,
@@ -15,10 +16,7 @@ pub struct FunctionDefineNode {
 }
 
 impl Compilable for FunctionDefineNode {
-    fn compile(
-        &self,
-        compiler: &mut crate::compiler::byte_code::Compiler,
-    ) -> Result<ComptimeValueType, crate::errors::compiler::compiler_errors::CompileError> {
+    fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         todo!()
     }
 

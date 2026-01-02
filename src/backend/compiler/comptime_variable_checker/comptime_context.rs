@@ -1,9 +1,9 @@
-use crate::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType;
-use crate::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{
+use crate::backend::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType;
+use crate::backend::errors::compiler::compiler_errors::CompileError;
+use crate::backend::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{
     Bool, Number, StringValue, Void,
 };
-use crate::errors::compiler::compiler_errors::CompileError;
-use crate::errors::compiler::compiler_errors::CompileError::UndefinedType;
+use crate::backend::errors::compiler::compiler_errors::CompileError::UndefinedType;
 use std::collections::HashMap;
 
 pub struct CompileContext {

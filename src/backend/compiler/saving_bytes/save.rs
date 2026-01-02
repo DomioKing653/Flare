@@ -1,4 +1,4 @@
-use crate::{
+use crate::backend::{
     ast::parser::Parser,
     compiler::{
         byte_code::{Compilable, Compiler},
@@ -6,8 +6,8 @@ use crate::{
     },
     errors::parser_errors::ParserError,
     lexer::{tokenizer::Tokenizer, tokens::Token},
-    runtime::virtual_machine::virtual_machine::VM,
 };
+use crate::runtime::virtual_machine::virtual_machine::VM;
 use std::{
     fs,
     fs::File,

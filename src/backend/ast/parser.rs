@@ -1,15 +1,15 @@
-use crate::ast::nodes::CallType::{Fn, Macro};
-use crate::ast::nodes::{BoolNode, FunctionCallNode, VariableAssignNode};
-use crate::ast::statements::if_statement::IfStatement;
-use crate::ast::statements::while_statement::WhileStatement;
-use crate::lexer::tokens::TokenKind::{COMMA, FALSE, SEMICOLON, TRUE};
-use crate::{
+use crate::backend::{
+    ast::nodes::CallType::{Fn, Macro},
     ast::nodes::{
         BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode, VariableAccessNode,
         VariableDefineNode,
     },
+    ast::nodes::{BoolNode, FunctionCallNode, VariableAssignNode},
+    ast::statements::if_statement::IfStatement,
+    ast::statements::while_statement::WhileStatement,
     compiler::byte_code::Compilable,
     errors::parser_errors::{ParserError, ParserError::UnexpectedToken},
+    lexer::tokens::TokenKind::{COMMA, FALSE, SEMICOLON, TRUE},
     lexer::tokens::{
         Token,
         TokenKind::{

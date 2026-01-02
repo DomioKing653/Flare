@@ -1,15 +1,15 @@
-use crate::compiler::instructions::Instructions::{ProcessExit, ReadInput, WriteLastOnStack};
+use crate::backend::compiler::instructions::Instructions::{ProcessExit, ReadInput, WriteLastOnStack};
 use crate::{
-    compiler::{
+    backend::compiler::{
         byte_code::{Compilable, Compiler},
         comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{
             self, Array, Bool, StringValue, Void,
         },
         instructions::Instructions::WriteLnLastOnStack,
     },
-    errors::compiler::compiler_errors::CompileError::{self, TypeMismatch},
+    backend::errors::compiler::compiler_errors::CompileError::{self, TypeMismatch},
 };
-use ComptimeValueType::Number;
+use crate::backend::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType::Number;
 
 pub trait Macro {
     fn compile(

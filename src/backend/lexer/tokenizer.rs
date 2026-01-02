@@ -1,9 +1,9 @@
 use std::error::Error;
 
-use crate::lexer::tokens::TokenKind::{COMMA, FALSE, SEMICOLON, TRUE};
+use crate::backend::lexer::tokens::TokenKind::{COMMA, FALSE, SEMICOLON, TRUE};
 use crate::{
-    errors::lexer_errors::LexerError,
-    lexer::tokens::{
+    backend::errors::lexer_errors::LexerError,
+    backend::lexer::tokens::{
         Token, TokenKind,
         TokenKind::{
             CLOSINGBRACE, COLON, CONST, DIVIDE, ELSE, EOF, EQUAL, FLOAT, FN, IDENTIFIER, IF,

@@ -1,8 +1,8 @@
 use std::fmt::Debug;
 
-use crate::{
+use crate::backend::{
     compiler::{
-        byte_code::Compilable,
+        byte_code::{self, Compilable},
         comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{self},
         instructions::Instructions,
     },
@@ -17,7 +17,7 @@ pub struct WhileStatement {
 impl Compilable for WhileStatement {
     fn compile(
         &self,
-        compiler: &mut crate::compiler::byte_code::Compiler,
+        compiler: &mut byte_code::Compiler,
     ) -> Result<ComptimeValueType, CompileError> {
         let cond_type = self.condition.compile(compiler)?;
         if cond_type != ComptimeValueType::Bool {

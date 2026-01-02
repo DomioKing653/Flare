@@ -1,5 +1,5 @@
-use crate::compiler::byte_code::Compilable;
-use crate::lexer::tokens::TokenKind;
+use crate::backend::compiler::byte_code::Compilable;
+use crate::backend::lexer::tokens::TokenKind;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
 

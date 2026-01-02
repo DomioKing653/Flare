@@ -1,8 +1,8 @@
-use crate::buildin_macros::macros::{
+use crate::backend::buildin_macros::macros::{
     Macro, ProcessExitMacro, ReadInputMacro, WriteLnMacro, WriteMacro,
 };
-use crate::errors::compiler::compiler_errors::CompileError;
-use crate::errors::compiler::compiler_errors::CompileError::UnknownMacro;
+use crate::backend::errors::compiler::compiler_errors::CompileError;
+use crate::backend::errors::compiler::compiler_errors::CompileError::UnknownMacro;
 use std::collections::HashMap;
 
 pub struct MacroManager {

@@ -1,6 +1,6 @@
 use {
     crate::{
-        compiler::instructions::Instructions,
+        backend::compiler::instructions::Instructions,
         runtime::virtual_machine::{
             pre_parsing::BytecodeLoader,
             value::Value::{self, Bool, Number, StringValue},

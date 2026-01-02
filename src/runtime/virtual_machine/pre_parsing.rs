@@ -1,4 +1,4 @@
-use crate::compiler::instructions::Instructions;
+use crate::backend::compiler::instructions::Instructions;
 use std::{error::Error, fs};
 
 pub struct BytecodeLoader {

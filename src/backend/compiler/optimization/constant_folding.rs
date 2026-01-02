@@ -1,4 +1,4 @@
-use crate::compiler::instructions::Instructions;
+use crate::backend::compiler::instructions::Instructions;
 use std::collections::HashMap;
 
 /// Performs constant folding optimization and returns both the optimized code

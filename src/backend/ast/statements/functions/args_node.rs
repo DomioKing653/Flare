@@ -1,4 +1,4 @@
-use crate::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{
+use crate::backend::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{
     self,
 };
 #[derive(Debug)]
