@@ -77,6 +77,7 @@ impl BytecodeLoader {
                 43 => Instructions::LessThan,
                 44 => Instructions::Equal,
                 50 => Instructions::ReadInput,
+                52 => Instructions::Modulo,
                 255 => Instructions::Halt,
 
                 _ => {

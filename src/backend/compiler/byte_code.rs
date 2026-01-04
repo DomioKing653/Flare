@@ -128,6 +128,18 @@ impl Compilable for BinaryOpNode {
                     })
                 }
             }
+            TokenKind::MODULO => {
+                if let Number = right {
+                    compiler.out.push(Instructions::Modulo);
+                    Ok(Number)
+                } else {
+                    Err(CompileError::InvalidBinaryOp {
+                        op: "%",
+                        left,
+                        right,
+                    })
+                }
+            }
             TokenKind::GREATER => {
                 if let Number = right {
                     compiler.out.push(Instructions::GreaterThan);

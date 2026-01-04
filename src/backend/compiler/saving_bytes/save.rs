@@ -161,6 +161,7 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
             Instructions::ReadInput => {
                 writer.write_all(&[50u8])?;
             }
+            Instructions::Modulo => writer.write_all(&[52u8])?,
             Instructions::Halt => writer.write_all(&[255u8])?,
         }
     }
