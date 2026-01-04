@@ -7,8 +7,8 @@ use crate::{
         Token, TokenKind,
         TokenKind::{
             CLOSINGBRACE, COLON, CONST, DIVIDE, ELSE, EOF, EQUAL, FLOAT, FN, IDENTIFIER, IF,
-            IMPORT, LEFTPAREN, LOOP, MINUS, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STR, TIMES, VAR,
-            WHILE,
+            IMPORT, LEFTPAREN, LOOP, MINUS, MODULO, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STR,
+            TIMES, VAR, WHILE,
         },
     },
 };
@@ -93,6 +93,10 @@ impl Tokenizer {
                 }),
                 '/' => self.final_tokens.push(Token {
                     token_kind: DIVIDE,
+                    token_value: self.current_token.to_string(),
+                }),
+                '%' => self.final_tokens.push(Token {
+                    token_kind: MODULO,
                     token_value: self.current_token.to_string(),
                 }),
                 '>' => self.final_tokens.push(Token {

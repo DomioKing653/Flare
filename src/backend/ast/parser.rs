@@ -14,8 +14,8 @@ use crate::backend::{
         Token,
         TokenKind::{
             self, CLOSINGBRACE, COLON, CONST, DIVIDE, ELSE, EOF, EQUAL, FLOAT, GREATER, IDENTIFIER,
-            IF, LEFTPAREN, LESS, MINUS, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STRING, TIMES, VALUE,
-            VAR, WHILE,
+            IF, LEFTPAREN, LESS, MINUS, MODULO, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STRING,
+            TIMES, VALUE, VAR, WHILE,
         },
     },
 };
@@ -182,7 +182,9 @@ impl Parser {
 
     fn parse_term(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
         let mut factor = self.parser_factor()?;
-        while self.current_token().token_kind == TIMES || self.current_token().token_kind == DIVIDE
+        while self.current_token().token_kind == TIMES
+            || self.current_token().token_kind == DIVIDE
+            || self.current_token().token_kind == MODULO
         {
             let operator = self.current_token().token_kind.clone();
             self.advance();

@@ -95,7 +95,17 @@ impl VM {
                     }
                     self.ip += 1;
                 }
-
+                Instructions::Modulo => {
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    match (left, right) {
+                        (Number(a), Number(b)) => {
+                            self.stack.push(Number(b % a));
+                        }
+                        _ => return Err("Type error: '%' expects numbers".into()),
+                    }
+                    self.ip += 1;
+                }
                 Instructions::PushString(s) => {
                     self.stack.push(StringValue(s));
                     self.ip += 1;

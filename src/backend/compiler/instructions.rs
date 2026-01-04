@@ -4,6 +4,7 @@ pub enum Instructions {
     Sub,
     Div,
     Mul,
+    Modulo,
     //Comparison
     GreaterThan,
     LessThan,

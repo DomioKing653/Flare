@@ -10,6 +10,7 @@ pub enum TokenKind {
     OPENINGBRACE,
     CLOSINGBRACE,
     EQUAL,
+    MODULO,
     //BOOLEAN
     GREATER,
     LESS,
