@@ -12,3 +12,4 @@ testing/__pycache__
 /target/.rustc_info.json
 #personal testing
 src/compiler/linked_list_for_later_use
+build.cmd
