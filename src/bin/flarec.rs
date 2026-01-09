@@ -1,11 +1,12 @@
 //Imports
 use flare::backend::{
-    compiler::saving_bytes::save::{build, run_code},
+    compiler::saving_bytes::save::build,
     errors::cli_errors::CommandLineError::{
         self, BuildHasJustTwoArg, NoFileSpecifiedForBuild, NoSuchCommand,
     },
     errors::compiler::error_explain::ERROR_EXPLAIN,
 };
+use flare::runtime::runner::running_vm::run_code;
 use std::env;
 
 fn main() {

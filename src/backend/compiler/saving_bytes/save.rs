@@ -7,7 +7,7 @@ use crate::backend::{
     errors::parser_errors::ParserError,
     lexer::{tokenizer::Tokenizer, tokens::Token},
 };
-use crate::runtime::virtual_machine::virtual_machine::VM;
+
 use std::{
     fs,
     fs::File,
@@ -168,18 +168,6 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
     Ok(())
 }
 
-pub fn run_code(path: &str) {
-    let program_time_start = Instant::now();
-    let mut vm: VM = VM::from_file(path).unwrap();
-    println!("Program:");
-    vm.run().unwrap();
-    let elapsed = program_time_start.elapsed();
-    let seconds = elapsed.as_secs_f32();
-    println!(
-        "\n\x1b[1;32mProgram finished in {:.3} seconds\x1b[0m",
-        seconds
-    )
-}
 fn ensure_target_dir() {
     let target = Path::new("out");
     if !target.exists() {
