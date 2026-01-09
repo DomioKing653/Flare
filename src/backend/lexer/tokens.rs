@@ -35,9 +35,7 @@ pub enum TokenKind {
     ELSE,
     LOOP,
     WHILE,
-    IMPORT,
-    //C INTEGRATION
-    CFUNC,
+    UNDEF,
     //EOF
     EOF,
     VALUE,

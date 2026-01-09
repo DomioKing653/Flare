@@ -43,7 +43,7 @@ impl fmt::Debug for BinaryOpNode {
 Number Node
 */
 pub struct NumberNode {
-    pub number: i32,
+    pub number: i64,
 }
 
 impl fmt::Debug for NumberNode {

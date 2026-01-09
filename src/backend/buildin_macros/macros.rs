@@ -3,13 +3,13 @@ use crate::{
     backend::compiler::{
         byte_code::{Compilable, Compiler},
         comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{
-            self, Array, Bool, StringValue, Void,
+            self, Array, Bool, StringValue, Void,Float
         },
         instructions::Instructions::WriteLnLastOnStack,
     },
     backend::errors::compiler::compiler_errors::CompileError::{self, TypeMismatch},
 };
-use crate::backend::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType::Number;
+use crate::backend::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType::Int;
 
 pub trait Macro {
     fn compile(
@@ -30,7 +30,7 @@ impl Macro for WriteLnMacro {
         for arg in args {
             let value = arg.compile(compiler)?;
             match value {
-                StringValue | Number => compiler.out.push(WriteLnLastOnStack),
+                StringValue | Int | Float => compiler.out.push(WriteLnLastOnStack),
                 Bool => {
                     return Err(CompileError::ExpectedPrintable { found: Bool });
                 }
@@ -57,7 +57,7 @@ impl Macro for WriteMacro {
         for arg in args {
             let value = arg.compile(compiler)?;
             match value {
-                StringValue | Number => compiler.out.push(WriteLastOnStack),
+                StringValue | Int | Float => compiler.out.push(WriteLastOnStack),
                 Bool => {
                     return Err(CompileError::ExpectedPrintable { found: Bool });
                 }
@@ -89,12 +89,12 @@ impl Macro for ProcessExitMacro {
         } else {
             let value = args[0].compile(out)?;
             match value {
-                Number => {
+                Int => {
                     out.out.push(ProcessExit);
                     return Ok(Void);
                 }
                 _ => Err(TypeMismatch {
-                    expected: Number,
+                    expected: Int,
                     found: value,
                 }),
             }

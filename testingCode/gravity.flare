@@ -1,0 +1,13 @@
+var velocity = 0.0;
+var gravity = 9.81;
+var time_step = 0.1;
+var height = 50000;
+writeLn!("Starting simulation")
+while (height > 0.0) {
+    velocity = velocity + (gravity * time_step);
+    height =  height - velocity * time_step;
+    if (height > 0.0) {
+        writeLn!(height)
+    }
+}
+writeLn!("Object has landed.")

@@ -1,3 +1,3 @@
 pub mod nodes;
 pub mod parser;
-mod statements;
+pub mod statements;

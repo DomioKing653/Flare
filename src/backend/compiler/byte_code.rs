@@ -8,7 +8,7 @@ use crate::backend::{
         comptime_variable_checker::{
             comptime_context::{CompileContext, ComptimeVariable},
             comptime_value_for_check::ComptimeValueType::{
-                self, Array, Bool, Number, StringValue, Void,
+                self, Array, Bool, Float, Int, StringValue, Void,
             },
         },
         instructions::Instructions::{
@@ -55,7 +55,7 @@ impl Compiler {
 impl Compilable for NumberNode {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         compiler.out.push(PushNumber(self.number as f32));
-        Ok(Number)
+        Ok(Int)
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         writeln!(f, "{}Number({})", indent_fn(indent), self.number)
@@ -65,7 +65,7 @@ impl Compilable for NumberNode {
 impl Compilable for FloatNode {
     fn compile(&self, out: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         out.out.push(PushNumber(self.number));
-        Ok(Number)
+        Ok(Int)
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         writeln!(f, "{}Float({})", indent_fn(indent), self.number)
@@ -78,9 +78,9 @@ impl Compilable for BinaryOpNode {
         let left = self.right.compile(compiler)?;
         match self.op_tok {
             TokenKind::PLUS => match (&left, &right) {
-                (Number, Number) => {
+                (Int, Int) => {
                     compiler.out.push(Add);
-                    Ok(Number)
+                    Ok(Int)
                 }
                 (StringValue, StringValue) => {
                     compiler.out.push(Add);
@@ -93,9 +93,9 @@ impl Compilable for BinaryOpNode {
                 }),
             },
             TokenKind::MINUS => {
-                if let Number = right {
+                if let Int = right {
                     compiler.out.push(Sub);
-                    Ok(Number)
+                    Ok(Int)
                 } else {
                     Err(CompileError::InvalidBinaryOp {
                         op: "-",
@@ -105,9 +105,9 @@ impl Compilable for BinaryOpNode {
                 }
             }
             TokenKind::TIMES => {
-                if let Number = right {
+                if let Int = right {
                     compiler.out.push(Mul);
-                    Ok(Number)
+                    Ok(Int)
                 } else {
                     Err(CompileError::InvalidBinaryOp {
                         op: "*",
@@ -117,9 +117,9 @@ impl Compilable for BinaryOpNode {
                 }
             }
             TokenKind::DIVIDE => {
-                if let Number = right {
+                if let Int = right {
                     compiler.out.push(Div);
-                    Ok(Number)
+                    Ok(Int)
                 } else {
                     Err(CompileError::InvalidBinaryOp {
                         op: "/",
@@ -129,9 +129,9 @@ impl Compilable for BinaryOpNode {
                 }
             }
             TokenKind::MODULO => {
-                if let Number = right {
+                if let Int = right {
                     compiler.out.push(Instructions::Modulo);
-                    Ok(Number)
+                    Ok(Int)
                 } else {
                     Err(CompileError::InvalidBinaryOp {
                         op: "%",
@@ -141,7 +141,7 @@ impl Compilable for BinaryOpNode {
                 }
             }
             TokenKind::GREATER => {
-                if let Number = right {
+                if let Int = right {
                     compiler.out.push(Instructions::GreaterThan);
                     Ok(Bool)
                 } else {
@@ -153,7 +153,7 @@ impl Compilable for BinaryOpNode {
                 }
             }
             TokenKind::LESS => {
-                if let Number = right {
+                if let Int = right {
                     compiler.out.push(Instructions::LessThan);
                     Ok(Bool)
                 } else {
@@ -259,7 +259,8 @@ impl Compilable for VariableDefineNode {
             (Some(d), None) => {
                 match d {
                     StringValue => compiler.out.push(PushString("".to_string())),
-                    Number => compiler.out.push(PushNumber(0f32)),
+                    Int => compiler.out.push(PushNumber(0f32)),
+                    Float => compiler.out.push(PushNumber(0f32)),
                     Bool => compiler.out.push(PushBool(false)),
                     Array(t) => {
                         todo!()

@@ -163,25 +163,39 @@ impl Parser {
     }
 
     fn parse_expr(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
-        let mut term = self.parse_term()?;
-        while self.current_token().token_kind == PLUS
-            || self.current_token().token_kind == MINUS
-            || self.current_token().token_kind == GREATER
-            || self.current_token().token_kind == LESS
+        self.parse_comparison()
+    }
+
+    fn parse_comparison(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
+        let mut factor = self.parse_term()?;
+        while self.current_token().token_kind == GREATER || self.current_token().token_kind == LESS
         {
             let operator = self.current_token().token_kind.clone();
             self.advance();
-            term = Box::new(BinaryOpNode {
-                left: term,
+            factor = Box::new(BinaryOpNode {
+                left: factor,
                 right: self.parse_term()?,
                 op_tok: operator,
             });
         }
-        Ok(term)
+        Ok(factor)
+    }
+    fn parse_term(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
+        let mut factor = self.parse_factor()?;
+        while self.current_token().token_kind == MINUS || self.current_token().token_kind == PLUS {
+            let operator = self.current_token().token_kind.clone();
+            self.advance();
+            factor = Box::new(BinaryOpNode {
+                left: factor,
+                right: self.parse_factor()?,
+                op_tok: operator,
+            });
+        }
+        Ok(factor)
     }
 
-    fn parse_term(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
-        let mut factor = self.parser_factor()?;
+    fn parse_factor(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
+        let mut factor = self.parse_unary()?;
         while self.current_token().token_kind == TIMES
             || self.current_token().token_kind == DIVIDE
             || self.current_token().token_kind == MODULO
@@ -190,14 +204,14 @@ impl Parser {
             self.advance();
             factor = Box::new(BinaryOpNode {
                 left: factor,
-                right: self.parser_factor()?,
+                right: self.parse_unary()?,
                 op_tok: operator,
             });
         }
         Ok(factor)
     }
 
-    fn parser_factor(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
+    fn parse_unary(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
         if self.current_token().token_kind == FLOAT {
             let value = match self.current_token().token_value.parse::<f32>() {
                 Err(_) => unreachable!(),
@@ -212,7 +226,7 @@ impl Parser {
             self.advance();
             Ok(Box::new(BoolNode { value }))
         } else if self.current_token().token_kind == NUMB {
-            let value = match self.current_token().token_value.parse::<i32>() {
+            let value = match self.current_token().token_value.parse::<i64>() {
                 Ok(numb) => numb,
                 Err(_) => unreachable!(),
             };
@@ -256,7 +270,6 @@ impl Parser {
             self.advance();
             let value = self.parse_expr()?;
             self.expect(RIGHTPAREN)?;
-            self.advance();
             Ok(value)
         } else if self.current_token().token_kind == STRING {
             let value = StringNode {

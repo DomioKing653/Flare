@@ -14,7 +14,9 @@ $ cd Flare
 ```
 3. build project using rust's cargo
 ```bash
-$ cargo build --bin flarec --re lease
+$ cargo build --bin flarec --release
+
+
 ```
 4. Put ```./target/release/flarec.exe``` to enviroment variables
 

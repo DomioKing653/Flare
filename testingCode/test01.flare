@@ -1,5 +1,6 @@
 var b = false;
 var test:string;
+var x = 5 *(3+5);
 const hello:string = "Hello ";
 const world = "world";
 var final = 3/3;
