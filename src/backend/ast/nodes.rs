@@ -7,6 +7,7 @@ pub enum CallType {
     Macro,
     Fn,
 }
+
 pub struct ProgramNode {
     pub program_nodes: Vec<Box<dyn Compilable>>,
 }
@@ -24,7 +25,12 @@ impl fmt::Debug for ProgramNode {
         self.fmt_with_indent(f, 0)
     }
 }
-/*
+impl Default for ProgramNode{
+ fn default()->Self{
+    Self::new()
+ }
+}
+/*  
 Binary Operation Node
 */
 pub struct BinaryOpNode {

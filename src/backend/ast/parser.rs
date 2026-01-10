@@ -23,8 +23,7 @@ use crate::backend::{
 pub struct Parser {
     tokens: Vec<Token>,
     token_idx: usize,
-}
-
+} 
 impl Parser {
     pub fn new(token_list: Vec<Token>) -> Self {
         Self {
