@@ -16,6 +16,7 @@ pub enum Instructions {
     PushString(String),
     PushBool(bool),
     PushNumber(f32),
+    PushFloat(f32),
     //Printing
     WriteLnLastOnStack,
     WriteLastOnStack,
