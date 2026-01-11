@@ -120,12 +120,13 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
                 writer.write_all(&(bytes.len() as u32).to_le_bytes())?;
                 writer.write_all(&v.as_bytes())?
             }
+            //Values
             Instructions::PushBool(b) => {
                 writer.write_all(&[8u8])?;
                 writer.write_all(&[*b as u8])?;
             }
             Instructions::PushNumber(n) => {
-                writer.write_all(&[9u8])?; // opcode for PushNumber
+                writer.write_all(&[9u8])?; 
                 writer.write_all(&n.to_le_bytes())?;
             }
             Instructions::PushFloat(f)=>{
