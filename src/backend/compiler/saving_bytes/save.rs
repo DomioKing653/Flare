@@ -129,11 +129,6 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
                 writer.write_all(&[9u8])?; 
                 writer.write_all(&n.to_le_bytes())?;
             }
-            Instructions::PushFloat(f)=>{
-                writer.write_all(&[10u8])?;
-                writer.write_all(&f.to_le_bytes())?
-                
-            }
 
             Instructions::WriteLnLastOnStack => {
                 writer.write_all(&[20u8])?;

@@ -136,10 +136,6 @@ impl VM {
                     self.stack.push(Number(n));
                     self.ip += 1;
                 }
-                Instructions::PushFloat(f)=>{
-                    self.stack.push(Number(f));
-                    self.ip+=1;
-                }
 
                 Instructions::WriteLnLastOnStack => {
                     let val = self.pop()?;

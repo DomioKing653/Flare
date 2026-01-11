@@ -65,7 +65,7 @@ impl Compilable for NumberNode {
 impl Compilable for FloatNode {
     fn compile(&self, out: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         out.out.push(PushNumber(self.number));
-        Ok(Int)
+        Ok(Float)
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         writeln!(f, "{}Float({})", indent_fn(indent), self.number)
@@ -82,93 +82,74 @@ impl Compilable for BinaryOpNode {
                     compiler.out.push(Add);
                     Ok(Int)
                 }
+                (Float, Float) | (Int, Float) | (Float, Int) => {
+                    compiler.out.push(Add);
+                    Ok(Float)
+                }
                 (StringValue, StringValue) => {
                     compiler.out.push(Add);
                     Ok(StringValue)
                 }
-                _ => Err(CompileError::InvalidBinaryOp {
-                    op: "+",
-                    left,
-                    right,
-                }),
+                _ => Err(CompileError::InvalidBinaryOp { op: "+", left, right }),
             },
-            TokenKind::MINUS => {
-                if let Int = right {
+            TokenKind::MINUS => match (&left, &right) {
+                (Int, Int) => {
                     compiler.out.push(Sub);
                     Ok(Int)
-                } else {
-                    Err(CompileError::InvalidBinaryOp {
-                        op: "-",
-                        left,
-                        right,
-                    })
                 }
-            }
-            TokenKind::TIMES => {
-                if let Int = right {
+                (Float, Float) | (Int, Float) | (Float, Int) => {
+                    compiler.out.push(Sub);
+                    Ok(Float)
+                }
+                _ => Err(CompileError::InvalidBinaryOp { op: "-", left, right }),
+            },
+            TokenKind::TIMES => match (&left, &right) {
+                (Int, Int) => {
                     compiler.out.push(Mul);
                     Ok(Int)
-                } else {
-                    Err(CompileError::InvalidBinaryOp {
-                        op: "*",
-                        left,
-                        right,
-                    })
                 }
-            }
-            TokenKind::DIVIDE => {
-                if let Int = right {
+                (Float, Float) | (Int, Float) | (Float, Int) => {
+                    compiler.out.push(Mul);
+                    Ok(Float)
+                }
+                _ => Err(CompileError::InvalidBinaryOp { op: "*", left, right }),
+            },
+            TokenKind::DIVIDE => match (&left, &right) {
+                (Int, Int) => {
                     compiler.out.push(Div);
                     Ok(Int)
-                } else {
-                    Err(CompileError::InvalidBinaryOp {
-                        op: "/",
-                        left,
-                        right,
-                    })
                 }
-            }
-            TokenKind::MODULO => {
-                if let Int = right {
+                (Float, Float) | (Int, Float) | (Float, Int) => {
+                    compiler.out.push(Div);
+                    Ok(Float)
+                }
+                _ => Err(CompileError::InvalidBinaryOp { op: "/", left, right }),
+            },
+            TokenKind::MODULO => match (&left, &right) {
+                (Int, Int) => {
                     compiler.out.push(Instructions::Modulo);
                     Ok(Int)
-                } else {
-                    Err(CompileError::InvalidBinaryOp {
-                        op: "%",
-                        left,
-                        right,
-                    })
                 }
-            }
-            TokenKind::GREATER => {
-                if let Int = right {
+                _ => Err(CompileError::InvalidBinaryOp { op: "%", left, right }),
+            },
+            TokenKind::GREATER => match (&left, &right) {
+                (Int, Int) | (Float, Float) | (Int, Float) | (Float, Int) => {
                     compiler.out.push(Instructions::GreaterThan);
                     Ok(Bool)
-                } else {
-                    Err(CompileError::InvalidBinaryOp {
-                        op: ">",
-                        left,
-                        right,
-                    })
                 }
-            }
-            TokenKind::LESS => {
-                if let Int = right {
+                _ => Err(CompileError::InvalidBinaryOp { op: ">", left, right }),
+            },
+            TokenKind::LESS => match (&left, &right) {
+                (Int, Int) | (Float, Float) | (Int, Float) | (Float, Int) => {
                     compiler.out.push(Instructions::LessThan);
                     Ok(Bool)
-                } else {
-                    Err(CompileError::InvalidBinaryOp {
-                        op: "<",
-                        left,
-                        right,
-                    })
                 }
-            }
-            _ => {
-                unreachable!()
-            }
+                _ => Err(CompileError::InvalidBinaryOp { op: "<", left, right }),
+            },
+            _ => unreachable!(),
         }
     }
+
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         writeln!(f, "{}BinaryOp({:?})", indent_fn(indent), self.op_tok)?;
         self.left.fmt_with_indent(f, indent + 2)?;
@@ -176,6 +157,7 @@ impl Compilable for BinaryOpNode {
         Ok(())
     }
 }
+
 impl Compilable for ProgramNode {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         for program_node in &self.program_nodes {

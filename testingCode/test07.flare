@@ -1,0 +1,3 @@
+const x:flt = 50.3;
+const i:numb = 5;
+writeLn!(x+i)

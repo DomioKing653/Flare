@@ -37,7 +37,7 @@ pub static ERROR_EXPLAIN: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(
     m.insert(
         "E0004",
         "Type mismatch.\n\
-         Example:
+         Example:\n\
         ```\n\
          var foo: bool = true;
          writeLn!(foo); // bool vs string\n\
@@ -48,7 +48,7 @@ pub static ERROR_EXPLAIN: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(
     m.insert(
         "E0005",
         "Invalid binary operation.\n\
-         Example:
+         Example:\n\
         ```\n\
          true + 5\n\
         ```\n\
@@ -58,7 +58,7 @@ pub static ERROR_EXPLAIN: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(
     m.insert(
         "E0006",
         "Undefined variable.\n\
-         Example:
+         Example:\n\
         ```\n\
          writeLn!(x); // x not declared\n\
         ```\n\

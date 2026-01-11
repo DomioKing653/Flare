@@ -30,4 +30,3 @@ impl Debug for StructDefineNode{
 /*
  * Sruct acces node
  */
-
