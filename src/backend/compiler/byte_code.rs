@@ -15,7 +15,7 @@ use crate::backend::{
         }, optimization::optimze::optimize
     },
     errors::compiler::compiler_errors::CompileError::{
-        self, CannotInferType, TypeMismatch, VariableRecreation,
+        self, CannotInferType, TypeMismatch,
     },
     lexer::tokens::TokenKind::{self, TRUE},
 };
@@ -183,7 +183,7 @@ impl Compilable for ProgramNode {
 
 impl Compilable for VariableAccessNode {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-        let var = compiler.context.variables.get(&self.variable_name).ok_or(
+        let var = compiler.context.get_variable(&self.variable_name).ok_or(
             CompileError::UndefinedVariable {
                 name: self.variable_name.clone(),
             },
@@ -208,15 +208,6 @@ impl Compilable for StringNode {
 
 impl Compilable for VariableDefineNode {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-        if compiler
-            .context
-            .variables
-            .contains_key(&self.var_name.clone())
-        {
-            return Err(VariableRecreation {
-                name: self.var_name.clone(),
-            });
-        }
         if self.is_const && self.value.is_none() {
             return Err(ConstantWithoutValue {
                 name: self.var_name.clone(),
@@ -267,13 +258,8 @@ impl Compilable for VariableDefineNode {
             }
         };
 
-        compiler.context.variables.insert(
-            self.var_name.clone(),
-            ComptimeVariable {
-                value_type: final_type,
-                is_const: self.is_const,
-            },
-        );
+        let var_name = self.var_name.clone();
+        compiler.context.add_variable(var_name, ComptimeVariable { value_type: final_type, is_const: self.is_const })?;
         compiler
             .out
             .push(Instructions::SaveVar(self.var_name.clone()));
@@ -305,7 +291,7 @@ impl Compilable for BoolNode {
 impl Compilable for VariableAssignNode {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         let (is_const, expected_type) = {
-            let var = compiler.context.variables.get(&self.name).ok_or(
+            let var = compiler.context.get_variable(&self.name).ok_or(
                 CompileError::UndefinedVariable {
                     name: self.name.clone(),
                 },

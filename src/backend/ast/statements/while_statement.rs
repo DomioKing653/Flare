@@ -2,9 +2,7 @@ use std::fmt::Debug;
 
 use crate::backend::{
     compiler::{
-        byte_code::{self, Compilable},
-        comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{self},
-        instructions::Instructions,
+        self, byte_code::{self, Compilable}, comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{self}, instructions::Instructions
     },
     errors::compiler::compiler_errors::CompileError,
 };
@@ -29,9 +27,11 @@ impl Compilable for WhileStatement {
         let jump_if_false_pos = compiler.out.len();
         compiler.out.push(Instructions::JumpIfFalse(0));
         let statements_start = compiler.out.len();
+        compiler.context.enter_scope();
         for statemnt in &self.body {
             statemnt.compile(compiler)?;
         }
+        compiler.context.exit_scope();
         self.condition.compile(compiler)?;
         compiler
             .out
