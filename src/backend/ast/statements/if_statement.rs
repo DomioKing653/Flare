@@ -1,10 +1,5 @@
 use crate::backend::{
-    compiler::byte_code::{Compiler, indent_fn},
-    compiler::instructions::Instructions,
-    compiler::{
-        byte_code::Compilable,
-        comptime_variable_checker::comptime_value_for_check::ComptimeValueType,
-    },
+    compiler::{ byte_code::{Compilable, Compiler, indent_fn}, comptime_variable_checker::comptime_value_for_check::ComptimeValueType, instructions::Instructions},
     errors::compiler::compiler_errors::CompileError,
 };
 use std::fmt::Debug;
@@ -27,21 +22,23 @@ impl Compilable for IfStatement {
 
         let jump_if_false_pos = compiler.out.len();
         compiler.out.push(Instructions::JumpIfFalse(0)); // Placeholder for jump instruction
-
+        compiler.context.enter_scope();
         for stmt in &self.then_branch {
             stmt.compile(compiler)?;
         }
+        compiler.context.exit_scope();
         let jump_end_pos = compiler.out.len();
         compiler.out.push(Instructions::Jump(0)); // Placeholder for end jump instruction
 
         let else_start = compiler.out.len();
         compiler.out[jump_if_false_pos] = Instructions::JumpIfFalse(else_start); // If false, jump to else_start
-
+        compiler.context.enter_scope();
         if let Some(else_branch) = &self.else_branch {
             for stmt in else_branch {
                 stmt.compile(compiler)?;
             }
         }
+        compiler.context.exit_scope();
 
         let end = compiler.out.len();
         compiler.out[jump_end_pos] = Instructions::Jump(end); // Jump to end

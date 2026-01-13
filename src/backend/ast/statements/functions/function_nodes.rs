@@ -3,8 +3,7 @@ use std::fmt::Debug;
 use crate::backend::{
     ast::statements::functions::args_node::FunctionArgs,
     compiler::{
-        byte_code::{Compilable, Compiler},
-        comptime_variable_checker::comptime_value_for_check::ComptimeValueType,
+        byte_code::{Compilable, Compiler}, comptime_variable_checker::comptime_value_for_check::ComptimeValueType, functions_compiler_context::CompileTimeFunctionForCheck
     },
     errors::compiler::compiler_errors::CompileError,
 };
@@ -17,6 +16,13 @@ pub struct FunctionDefineNode {
 
 impl Compilable for FunctionDefineNode {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
+        let return_type = self.return_type.clone().unwrap();
+        compiler.function_context.add_function(
+            CompileTimeFunctionForCheck{
+                is_pub:true,
+                return_type
+            }
+        )?;
         todo!()
     }
 

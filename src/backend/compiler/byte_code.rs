@@ -10,11 +10,9 @@ use crate::backend::{
             comptime_value_for_check::ComptimeValueType::{
                 self, Array, Bool, Float, Int, StringValue, Void,
             },
-        },
-        instructions::Instructions::{
+        }, functions_compiler_context::FunctionContext, instructions::Instructions::{
             self, Add, Div, Halt, LoadVar, Mul, PushBool, PushNumber, PushString, Sub,
-        },
-        optimization::optimze::optimize,
+        }, optimization::optimze::optimize
     },
     errors::compiler::compiler_errors::CompileError::{
         self, CannotInferType, TypeMismatch, VariableRecreation,
@@ -36,12 +34,20 @@ pub struct Compiler {
     pub context: CompileContext,
     pub out: Vec<Instructions>,
     pub macros: MacroManager,
+    pub function_context:FunctionContext
 }
 
+
+impl Default for Compiler {
+    fn default() -> Self {
+        Self::new()   
+    }
+}
 impl Compiler {
     pub fn new() -> Self {
         Self {
             context: CompileContext::new(),
+            function_context:FunctionContext::default(),
             out: Vec::new(),
             macros: MacroManager::new(),
         }

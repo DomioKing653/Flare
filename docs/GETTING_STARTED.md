@@ -135,3 +135,13 @@ Few rules for **while**:
 - body of the **while** evaluates while the condition is true
 - when the condition is false it continues the program
 - condition is evaluated at the end of each loop
+## Scopes
+- scopes start with ```{``` and ends with ```}```
+- variables are added to current scope
+**Example**
+```Flare
+if(something){
+  var x = 5; //<-x defined here
+}
+x + 5 // wont work
+```
