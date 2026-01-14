@@ -1,7 +1,7 @@
 use crate::backend::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{
     self,
 };
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct FunctionArgs {
     pub argument_type: ComptimeValueType,
     pub name: String,

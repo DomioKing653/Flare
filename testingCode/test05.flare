@@ -6,4 +6,7 @@ while(i<10){
 if (true){
     var x = 0;
 }
+else{
+    x = 5;
+}
 x

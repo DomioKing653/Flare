@@ -4,4 +4,3 @@ pub mod instructions;
 mod optimization;
 pub mod saving_bytes;
 pub mod functions_compiler_context;
-pub mod scopes;

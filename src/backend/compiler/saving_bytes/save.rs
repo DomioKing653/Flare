@@ -4,7 +4,6 @@ use crate::backend::{
         byte_code::{Compilable, Compiler},
         instructions::Instructions,
     },
-    errors::parser_errors::ParserError,
     lexer::{tokenizer::Tokenizer, tokens::Token},
 };
 
@@ -60,11 +59,7 @@ pub fn build(dir: String, out: String, debug: bool) {
      */
     let mut main_parser: Parser = Parser::new(tokens.to_vec());
     let parsed_ast = main_parser.parse().unwrap_or_else(|e| {
-        match e {
-            ParserError::UnexpectedToken { expected, found } => {
-                println!("Expected: {:?} but found {:?}", expected, found)
-            }
-        }
+        println!("\x1b[1;31m{}\x1b[0m",e);
         process::exit(-2)
     });
     /*

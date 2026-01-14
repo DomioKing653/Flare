@@ -1,7 +1,6 @@
 use crate::backend::{
     ast::nodes::{
-        ArrayNode, BinaryOpNode, BoolNode, CallType, FloatNode, FunctionCallNode, NumberNode,
-        ProgramNode, StringNode, VariableAccessNode, VariableAssignNode, VariableDefineNode,
+        ArrayNode, BinaryOpNode, BoolNode, CallType, FloatNode, FunctionCallNode, NumberNode, PrefixExpressionNode, ProgramNode, StringNode, VariableAccessNode, VariableAssignNode, VariableDefineNode
     },
     buildin_macros::get_macro::MacroManager,
     compiler::{
@@ -10,7 +9,7 @@ use crate::backend::{
             comptime_value_for_check::ComptimeValueType::{
                 self, Array, Bool, Float, Int, StringValue, Void,
             },
-        }, functions_compiler_context::FunctionContext, instructions::Instructions::{
+        }, functions_compiler_context::{CompileTimeFunctionForCheck}, instructions::Instructions::{
             self, Add, Div, Halt, LoadVar, Mul, PushBool, PushNumber, PushString, Sub,
         }, optimization::optimze::optimize
     },
@@ -22,7 +21,19 @@ use crate::backend::{
 use CompileError::ConstantWithoutValue;
 use std::fmt::{self, Debug, Formatter};
 
-pub trait Compilable: Debug {
+pub trait CompilableClone {
+    fn clone_box(&self) -> Box<dyn Compilable>;
+}
+
+impl<T> CompilableClone for T
+where
+    T: 'static + Compilable + Clone,
+{
+    fn clone_box(&self) -> Box<dyn Compilable> {
+        Box::new(self.clone())
+    }
+}
+pub trait Compilable: Debug + CompilableClone {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError>;
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result;
 }
@@ -30,11 +41,16 @@ pub fn indent_fn(n: usize) -> String {
     "  ".repeat(n)
 }
 
+impl Clone for Box<dyn Compilable>  {
+    fn clone(&self) -> Self {
+        self.clone_box()
+    }
+}
+
 pub struct Compiler {
     pub context: CompileContext,
     pub out: Vec<Instructions>,
     pub macros: MacroManager,
-    pub function_context:FunctionContext
 }
 
 
@@ -47,7 +63,6 @@ impl Compiler {
     pub fn new() -> Self {
         Self {
             context: CompileContext::new(),
-            function_context:FunctionContext::default(),
             out: Vec::new(),
             macros: MacroManager::new(),
         }
@@ -57,7 +72,6 @@ impl Compiler {
         self.out = optimize(code);
     }
 }
-
 impl Compilable for NumberNode {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         compiler.out.push(PushNumber(self.number as f32));
@@ -75,6 +89,21 @@ impl Compilable for FloatNode {
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
         writeln!(f, "{}Float({})", indent_fn(indent), self.number)
+    }
+}
+
+impl Compilable for PrefixExpressionNode {
+    fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
+        todo!()
+    }
+    fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
+        write!(f,"{}{:?}",indent_fn(indent+1),self.prefix)?;
+        self.value.fmt_with_indent(f, 0)
+    }
+}
+impl Debug for PrefixExpressionNode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        self.fmt_with_indent(f, 0)
     }
 }
 
@@ -352,7 +381,9 @@ impl Compilable for FunctionCallNode {
                 result
             }
             CallType::Fn => {
-                unreachable!()
+                let called_function:CompileTimeFunctionForCheck;
+                todo!()
+
             }
         }
     }

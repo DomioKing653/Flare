@@ -8,7 +8,7 @@ use crate::{
         TokenKind::{
             CLOSINGBRACE, COLON, CONST, DIVIDE, ELSE, EOF, EQUAL, FLOAT, FN, IDENTIFIER, IF,
             LEFTPAREN, LOOP, MINUS, MODULO, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STR, TIMES, VAR,
-            WHILE,
+            WHILE,AS
         },
     },
 };
@@ -211,6 +211,10 @@ impl Tokenizer {
             "while" => Token {
                 token_kind: WHILE,
                 token_value: text_buffer,
+            },
+            "as"=>Token{
+                token_kind:AS,
+                token_value:text_buffer
             },
             "undef" => Token {
                 token_kind: TokenKind::UNDEF,

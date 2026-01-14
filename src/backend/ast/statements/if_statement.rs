@@ -3,7 +3,7 @@ use crate::backend::{
     errors::compiler::compiler_errors::CompileError,
 };
 use std::fmt::Debug;
-
+#[derive(Clone)]
 pub struct IfStatement {
     pub then_branch: Vec<Box<dyn Compilable>>,
     pub condition: Box<dyn Compilable>,

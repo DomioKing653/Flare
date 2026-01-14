@@ -38,6 +38,8 @@ pub enum CompileError {
     ConstReassignment { name: String },
     #[error("[E0010]Wrong macro argument count: expected {expected}, found {found}")]
     WrongMacroArgCount { expected: usize, found: usize },
-    #[error("Expected printable but found {found:?}")]
+    #[error("[E0011]Expected printable but found {found:?}")]
     ExpectedPrintable { found: ComptimeValueType },
+    #[error("[E0012]Function {name} is already defined")]
+    FunctionAlredyExists{name:String}
 }

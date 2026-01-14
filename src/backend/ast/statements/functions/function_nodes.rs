@@ -7,6 +7,7 @@ use crate::backend::{
     },
     errors::compiler::compiler_errors::CompileError,
 };
+#[derive(Clone)]
 pub struct FunctionDefineNode {
     pub args: Vec<FunctionArgs>,
     pub id: String,
@@ -17,10 +18,14 @@ pub struct FunctionDefineNode {
 impl Compilable for FunctionDefineNode {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         let return_type = self.return_type.clone().unwrap();
-        compiler.function_context.add_function(
+        let args = self.args.clone();
+        compiler.context.add_function(
+            self.id.clone(),
             CompileTimeFunctionForCheck{
                 is_pub:true,
-                return_type
+                return_type,
+                args,
+                body:self.body.clone()
             }
         )?;
         todo!()

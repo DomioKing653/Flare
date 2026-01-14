@@ -4,11 +4,12 @@ use crate::backend::compiler::byte_code::Compilable;
 use crate::backend::compiler::byte_code::Compiler;
 use crate::backend::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType;
 use crate::backend::errors::compiler::compiler_errors::CompileError;
+#[derive(Clone)]
 pub struct StructVariable{
     pub var_type:String
 }
 
-
+#[derive(Clone)]
 pub struct StructDefineNode{
     pub args:Vec<StructVariable>
 }

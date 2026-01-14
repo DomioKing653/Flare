@@ -2,11 +2,12 @@ use std::fmt::Debug;
 
 use crate::backend::{
     compiler::{
-        self, byte_code::{self, Compilable}, comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{self}, instructions::Instructions
+        byte_code::{self, Compilable}, comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{self}, instructions::Instructions
     },
     errors::compiler::compiler_errors::CompileError,
 };
 
+#[derive(Clone)]
 pub struct WhileStatement {
     pub condition: Box<dyn Compilable>,
     pub body: Vec<Box<dyn Compilable>>,

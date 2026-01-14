@@ -15,7 +15,7 @@ use crate::backend::{
         TokenKind::{
             self, CLOSINGBRACE, COLON, CONST, DIVIDE, ELSE, EOF, EQUAL, FLOAT, GREATER, IDENTIFIER,
             IF, LEFTPAREN, LESS, MINUS, MODULO, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STRING,
-            TIMES, VALUE, VAR, WHILE,
+            TIMES, VALUE, VAR, WHILE
         },
     },
 };
@@ -162,7 +162,13 @@ impl Parser {
     }
 
     fn parse_expr(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
-        self.parse_comparison()
+        //let mut comp:Box<dyn Compilable>;
+        //if self.current_token()==MINUS {
+          //  comp
+        //}
+
+        let comp = self.parse_comparison();
+        comp
     }
 
     fn parse_comparison(&mut self) -> Result<Box<dyn Compilable>, ParserError> {

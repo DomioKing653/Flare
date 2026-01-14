@@ -3,11 +3,13 @@ use crate::backend::lexer::tokens::TokenKind;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
 
+#[derive(Clone)]
 pub enum CallType {
     Macro,
     Fn,
 }
 
+#[derive(Clone)]
 pub struct ProgramNode {
     pub program_nodes: Vec<Box<dyn Compilable>>,
 }
@@ -33,6 +35,7 @@ impl Default for ProgramNode{
 /*  
 Binary Operation Node
 */
+#[derive(Clone)]
 pub struct BinaryOpNode {
     pub left: Box<dyn Compilable>,
     pub right: Box<dyn Compilable>,
@@ -44,10 +47,20 @@ impl fmt::Debug for BinaryOpNode {
         self.fmt_with_indent(f, 0)
     }
 }
+/*
+ * Unary expresion node
+ */
+#[derive(Clone)]
+pub struct PrefixExpressionNode{
+    pub prefix:TokenKind,
+    pub value:Box<dyn Compilable>
+}
+
 
 /*
 Number Node
 */
+#[derive(Clone)]
 pub struct NumberNode {
     pub number: i64,
 }
@@ -60,6 +73,7 @@ impl fmt::Debug for NumberNode {
 /*
 Float node
 */
+#[derive(Clone)]
 pub struct FloatNode {
     pub number: f32,
 }
@@ -73,6 +87,7 @@ impl fmt::Debug for FloatNode {
  * String node
  */
 
+#[derive(Clone)]
 pub struct StringNode {
     pub value: String,
 }
@@ -84,6 +99,7 @@ impl Debug for StringNode {
 /*
  * Bool node
  */
+#[derive(Clone)]
 pub struct BoolNode {
     pub value: TokenKind,
 }
@@ -95,6 +111,7 @@ impl Debug for BoolNode {
 /*
  * Array node
  */
+#[derive(Clone)]
 pub struct ArrayNode {
     pub elements: Vec<Box<dyn Compilable>>,
 }
@@ -107,6 +124,7 @@ impl Debug for ArrayNode {
 Variable Access
 */
 
+#[derive(Clone)]
 pub struct VariableAccessNode {
     pub variable_name: String,
 }
@@ -119,6 +137,7 @@ impl fmt::Debug for VariableAccessNode {
 /*
 Variable Define
 */
+#[derive(Clone)]
 pub struct VariableDefineNode {
     pub var_name: String,
     pub value_type: Option<String>,
@@ -134,6 +153,7 @@ impl Debug for VariableDefineNode {
 Variable assign node
 */
 
+#[derive(Clone)]
 pub struct VariableAssignNode {
     pub name: String,
     pub value: Box<dyn Compilable>,
@@ -149,6 +169,7 @@ impl Debug for VariableAssignNode {
 FunctionCallNode
 */
 
+#[derive(Clone)]
 pub struct FunctionCallNode {
     pub args: Vec<Box<dyn Compilable>>,
     pub name: String,

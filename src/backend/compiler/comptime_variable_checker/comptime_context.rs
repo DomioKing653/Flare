@@ -1,22 +1,22 @@
 use crate::backend::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType;
+use crate::backend::compiler::functions_compiler_context::CompileTimeFunctionForCheck;
 use crate::backend::errors::compiler::compiler_errors::CompileError;
 use crate::backend::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{
     Bool, Int, StringValue, Void, Float
 };
-use crate::backend::compiler::comptime_variable_checker::functions::Function;
 use crate::backend::errors::compiler::compiler_errors::CompileError::UndefinedType;
 use std::collections::HashMap;
 
 pub struct CompileContext {
     pub variables: HashMap<String, ComptimeVariable>,
-    pub functions: HashMap<String, Function>,
+    pub functions: Vec<HashMap<String, CompileTimeFunctionForCheck>>,
     pub scopes:Vec<HashMap<String,ComptimeVariable>>
 }
 impl CompileContext {
     pub fn new() -> Self {
         Self {
             variables: HashMap::new(),
-            functions: HashMap::new(),
+            functions: vec![HashMap::new()],
             scopes:vec![HashMap::new()]
         }
     }
@@ -56,6 +56,15 @@ impl CompileContext {
         }
         None
 
+    }
+    pub fn add_function(&mut self,name : String,fnc:CompileTimeFunctionForCheck)->Result<(),CompileError> {
+        let curren_fnc_scope = self.functions.last_mut().unwrap();
+        if curren_fnc_scope.contains_key(&name) {
+            return Err(CompileError::FunctionAlredyExists { name });
+            
+        }
+
+        Ok(())
     }
 }
 
