@@ -1,6 +1,5 @@
-use crate::backend::compiler::instructions::Instructions;
+use crate::backend::compiler::instructions::{self, Instructions};
 use std::{error::Error, fs};
-
 pub struct BytecodeLoader {
     bytes: Vec<u8>,
     pos: usize,
@@ -23,62 +22,63 @@ impl BytecodeLoader {
             let opcode = self.read_u8()?;
 
             let instruction = match opcode {
-                1 => Instructions::Add,
-                2 => Instructions::Sub,
-                3 => Instructions::Mul,
-                4 => Instructions::Div,
+                instructions::ADD  => Instructions::Add,
+                instructions::SUB=> Instructions::Sub,
+                instructions::MUL => Instructions::Mul,
+                instructions::DIV => Instructions::Div,
+                instructions::MODULO => Instructions::Modulo,
 
-                5 => {
+                instructions::PUSH_STR => {
                     let len = self.read_u32()? as usize;
                     let s = self.read_string(len)?;
                     Instructions::PushString(s)
                 }
 
-                6 => {
+                instructions::LOAD_VAR => {
                     let len = self.read_u32()? as usize;
                     let name = self.read_string(len)?;
                     Instructions::LoadVar(name)
                 }
 
-                7 => {
+                instructions::STORE_VAR => {
                     let len = self.read_u32()? as usize;
                     let name = self.read_string(len)?;
                     Instructions::SaveVar(name)
                 }
 
-                8 => {
+                instructions::PUSH_BOOL => {
                     let value = self.read_u8()? != 0;
                     Instructions::PushBool(value)
                 }
 
-                9 => {
+                instructions::PUSH_NUMB => {
                     let value = self.read_f32()?;
                     Instructions::PushNumber(value)
                 }
 
-                20 => Instructions::WriteLnLastOnStack,
-                21 => Instructions::WriteLastOnStack,
-                35 => Instructions::ProcessExit,
-                39 => {
+                instructions::WRITE_LN=> Instructions::WriteLnLastOnStack,
+                instructions::WRITE => Instructions::WriteLastOnStack,
+                instructions::PROCESS_EXIT => Instructions::ProcessExit,
+                instructions::JUMP_IF_TRUE => {
                     let addr = self.read_u16()? as usize;
                     Instructions::JumpIfTrue(addr)
                 }
-                40 => {
+                instructions::JUMP => {
                     let addr = self.read_u16()? as usize;
                     Instructions::Jump(addr)
                 }
 
-                41 => {
+                instructions::JUMP_IF_FALSE => {
                     let addr = self.read_u16()? as usize;
                     Instructions::JumpIfFalse(addr)
                 }
 
-                42 => Instructions::GreaterThan,
-                43 => Instructions::LessThan,
-                44 => Instructions::Equal,
-                50 => Instructions::ReadInput,
-                52 => Instructions::Modulo,
-                255 => Instructions::Halt,
+                instructions::GREATER => Instructions::GreaterThan,
+                instructions::LESS => Instructions::LessThan,
+                instructions::EQUAL => Instructions::Equal,
+                instructions::READ_INPUT => Instructions::ReadInput,
+
+                instructions::HALT => Instructions::Halt,
 
                 _ => {
                     return Err(

@@ -92,74 +92,78 @@ fn compile_to_exec(file_name: String, byte_code: &mut Vec<Instructions>) -> std:
     let file = File::create(file_name)?;
     let mut writer = BufWriter::new(file);
     for instr in byte_code {
+        let opcode = instr.opcode();
         match instr {
-            Instructions::Add => writer.write_all(&[1u8])?,
-            Instructions::Sub => writer.write_all(&[2u8])?,
-            Instructions::Mul => writer.write_all(&[3u8])?,
-            Instructions::Div => writer.write_all(&[4u8])?,
+            Instructions::Add => writer.write_all(&[opcode])?,
+            Instructions::Sub => writer.write_all(&[opcode])?,
+            Instructions::Mul => writer.write_all(&[opcode])?,
+            Instructions::Div => writer.write_all(&[opcode])?, 
+            Instructions::Modulo => writer.write_all(&[opcode])?,
             Instructions::PushString(s) => {
-                writer.write_all(&[5u8])?;
+                writer.write_all(&[opcode])?;
                 let bytes = s.as_bytes();
                 writer.write_all(&(bytes.len() as u32).to_le_bytes())?;
                 writer.write_all(&s.as_bytes())?
             }
+
+            //Values
+            Instructions::PushBool(b) => {
+                writer.write_all(&[opcode])?;
+                writer.write_all(&[*b as u8])?;
+            }
+            Instructions::PushNumber(n) => {
+                writer.write_all(&[opcode])?;
+                writer.write_all(&n.to_le_bytes())?;
+            }
+
+            Instructions::WriteLnLastOnStack => {
+                writer.write_all(&[opcode])?;
+            }
+            Instructions::WriteLastOnStack => {
+                writer.write_all(&[opcode])?;
+            }
+            Instructions::ProcessExit => {
+                writer.write_all(&[opcode])?;
+            }
+            Instructions::JumpIfTrue(adr) => {
+                writer.write_all(&[opcode])?;
+                writer.write_all(&(*adr as u16).to_le_bytes())?;
+            }
+           
             Instructions::LoadVar(v) => {
-                writer.write_all(&[6u8])?;
+                writer.write_all(&[opcode])?;
                 let bytes = v.as_bytes();
                 writer.write_all(&(bytes.len() as u32).to_le_bytes())?;
                 writer.write_all(&v.as_bytes())?
             }
             Instructions::SaveVar(v) => {
-                writer.write_all(&[7u8])?;
+                writer.write_all(&[opcode])?;
                 let bytes = v.as_bytes();
                 writer.write_all(&(bytes.len() as u32).to_le_bytes())?;
                 writer.write_all(&v.as_bytes())?
             }
-            //Values
-            Instructions::PushBool(b) => {
-                writer.write_all(&[8u8])?;
-                writer.write_all(&[*b as u8])?;
-            }
-            Instructions::PushNumber(n) => {
-                writer.write_all(&[9u8])?; 
-                writer.write_all(&n.to_le_bytes())?;
-            }
-
-            Instructions::WriteLnLastOnStack => {
-                writer.write_all(&[20u8])?;
-            }
-            Instructions::WriteLastOnStack => {
-                writer.write_all(&[21u8])?;
-            }
-            Instructions::ProcessExit => {
-                writer.write_all(&[35u8])?;
-            }
-            Instructions::JumpIfTrue(adr) => {
-                writer.write_all(&[39u8])?;
-                writer.write_all(&(*adr as u16).to_le_bytes())?;
-            }
             Instructions::Jump(adr) => {
-                writer.write_all(&[40u8])?;
+                writer.write_all(&[opcode])?;
                 writer.write_all(&(*adr as u16).to_le_bytes())?;
             }
             Instructions::JumpIfFalse(adr) => {
-                writer.write_all(&[41u8])?;
+                writer.write_all(&[opcode])?;
                 writer.write_all(&(*adr as u16).to_le_bytes())?;
             }
             Instructions::GreaterThan => {
-                writer.write_all(&[42u8])?;
+                writer.write_all(&[opcode])?;
             }
             Instructions::LessThan => {
-                writer.write_all(&[43u8])?;
+                writer.write_all(&[opcode])?;
             }
             Instructions::Equal => {
-                writer.write_all(&[44u8])?;
+                writer.write_all(&[opcode])?;
             }
             Instructions::ReadInput => {
-                writer.write_all(&[50u8])?;
+                writer.write_all(&[opcode])?;
             }
-            Instructions::Modulo => writer.write_all(&[52u8])?,
-            Instructions::Halt => writer.write_all(&[255u8])?,
+
+            Instructions::Halt => writer.write_all(&[opcode])?,
         }
     }
     Ok(())

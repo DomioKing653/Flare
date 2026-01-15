@@ -1,35 +1,106 @@
+// MATH
+pub const ADD:u8 = 1;
+pub const  SUB:u8 = 2;
+pub const  DIV:u8 = 3;
+pub const  MUL:u8 = 4;
+pub const  MODULO:u8 = 5;
 
-#[repr(u32)]
+//COMP
+pub const GREATER:u8 = 6;
+pub const LESS:u8 = 7;
+pub const EQUAL:u8 = 8;
+//JUMPS
+pub const JUMP:u8 =40;
+pub const JUMP_IF_FALSE:u8 = 41;
+pub const JUMP_IF_TRUE:u8 = 42;
+
+// VALS
+pub const  PUSH_STR:u8 = 20;
+pub const  PUSH_BOOL:u8 = 21;
+pub const PUSH_NUMB:u8 = 22;
+
+// IO
+pub const WRITE_LN:u8 = 30;
+pub const WRITE:u8 = 31;
+
+pub const READ_INPUT:u8 = 60;
+pub const PROCESS_EXIT:u8 = 61;
+
+// VARS
+pub const STORE_VAR:u8 = 50;
+pub const LOAD_VAR:u8 = 51;
+
+
+
+//HALT
+pub const HALT:u8 = 255;
 #[derive(Debug, Clone,PartialEq,)]
 pub enum Instructions {
-    Add = 0,
-    Sub = 1,
-    Div = 2,
-    Mul = 3,
-    Modulo = 4,
+    Add,
+    Sub,
+    Div,
+    Mul ,
+    Modulo ,
     //Comparison
-    GreaterThan = 5,
-    LessThan = 6,
-    Equal = 7,
+    GreaterThan,
+    LessThan ,
+    Equal ,
     //Variables
-    LoadVar(String) = 15,
-    SaveVar(String) = 16,
+    LoadVar(String),
+    SaveVar(String),
     //Values
-    PushString(String) = 20,
-    PushBool(bool) = 21,
-    PushNumber(f32) = 22,
-    ReadInput = 32,
+    PushString(String),
+    PushBool(bool),
+    PushNumber(f32),
+    ReadInput,
     //Printing
-    WriteLnLastOnStack = 30,
-    WriteLastOnStack = 31,
+    WriteLnLastOnStack,
+    WriteLastOnStack,
     //Process
-    ProcessExit = 35,
+    ProcessExit,
     //Control flow
-    Jump(usize) = 40,
-    JumpIfFalse(usize) = 41,
-    JumpIfTrue(usize) = 42,
+    Jump(usize),
+    JumpIfFalse(usize),
+    JumpIfTrue(usize),
 
 
     // Halt
-    Halt = 255,
+    Halt,
+}
+
+impl Instructions {
+    pub fn opcode(&self) -> u8 {
+        match self {
+            Instructions::Add => ADD,
+            Instructions::Sub => SUB,
+            Instructions::Div => DIV,
+            Instructions::Mul => MUL,
+            Instructions::Modulo => MODULO,
+
+            Instructions::GreaterThan => GREATER,
+            Instructions::LessThan => LESS,
+            Instructions::Equal => EQUAL,
+
+
+
+            Instructions::PushString(_) => PUSH_STR,
+            Instructions::PushBool(_) => PUSH_BOOL,
+            Instructions::PushNumber(_) => PUSH_NUMB,
+
+            Instructions::WriteLnLastOnStack => WRITE_LN,
+            Instructions::WriteLastOnStack => WRITE,
+
+            Instructions::ReadInput => READ_INPUT,
+            Instructions::ProcessExit => PROCESS_EXIT,
+
+            Instructions::LoadVar(_) => LOAD_VAR,
+            Instructions::SaveVar(_) => STORE_VAR,
+
+            Instructions::Jump(_) => JUMP,
+            Instructions::JumpIfFalse(_) => JUMP_IF_FALSE,
+            Instructions::JumpIfTrue(_) => JUMP_IF_TRUE,
+
+            Instructions::Halt => HALT,
+        }
+    }
 }
