@@ -226,23 +226,32 @@ impl Tokenizer {
             },
         }
     }
-    fn read_string(&mut self) -> Result<Token,LexerError> {
-        self.advance();
 
-        let mut value = String::new();
-        while self.current_token != '"'|| self.current_token!='\0' {
-            if self.current_token == '\0' {
-                return Err(LexerError::UnterminatedString { text: value });
-               
-            }
-            value.push(self.current_token);
-            self.advance();
-        }
 
+
+fn read_string(&mut self) -> Result<Token, LexerError> {
+    self.advance();
+
+    let mut value = String::new();
+    while self.current_token != '"' && self.current_token != '\0' {
+        value.push(self.current_token);
         self.advance();
-        Ok(Token {
-            token_kind: TokenKind::STRING,
-            token_value: value,
-        })
     }
+
+    if self.current_token == '\0' {
+        return Err(LexerError::UnterminatedString { text: value });
+    }
+
+    self.advance();
+    Ok(Token {
+        token_kind: TokenKind::STRING,
+        token_value: value,
+    })
+}
+
+
+
+
+
+
 }
