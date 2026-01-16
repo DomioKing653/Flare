@@ -43,7 +43,7 @@ impl Tokenizer {
                     continue;
                 }
                 '"' => {
-                    let token = self.read_string();
+                    let token = self.read_string()?;
                     self.final_tokens.push(token);
                     continue;
                 }
@@ -226,19 +226,23 @@ impl Tokenizer {
             },
         }
     }
-    fn read_string(&mut self) -> Token {
+    fn read_string(&mut self) -> Result<Token,LexerError> {
         self.advance();
 
         let mut value = String::new();
-        while self.current_token != '"' {
+        while self.current_token != '"'|| self.current_token!='\0' {
+            if self.current_token == '\0' {
+                return Err(LexerError::UnterminatedString { text: value });
+               
+            }
             value.push(self.current_token);
             self.advance();
         }
 
         self.advance();
-        Token {
+        Ok(Token {
             token_kind: TokenKind::STRING,
             token_value: value,
-        }
+        })
     }
 }

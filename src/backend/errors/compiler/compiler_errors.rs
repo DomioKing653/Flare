@@ -41,5 +41,9 @@ pub enum CompileError {
     #[error("[E0011]Expected printable but found {found:?}")]
     ExpectedPrintable { found: ComptimeValueType },
     #[error("[E0012]Function {name} is already defined")]
-    FunctionAlredyExists{name:String}
+    FunctionAlredyExists{name:String},
+    #[error("[E0013]Unknown function:{name}")]
+    UnknownFunction{name:String},
+    #[error("[E0014]Unexpected number of arguments at function {name}: expected{expected} but got{found}")]
+    UnexpectedFunctionArguments{name:String,expected:usize,found:usize}
 }

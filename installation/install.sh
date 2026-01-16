@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-REPO_URL="https://github.com/uzivatel/flarerepo.git"
+REPO_URL="https://github.com/DomioKing653/FLare.git"
 REPO_DIR="flarerepo"
 BIN_NAME="flarec"
 INSTALL_DIR="$HOME/.local/bin"

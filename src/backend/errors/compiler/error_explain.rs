@@ -106,5 +106,17 @@ pub static ERROR_EXPLAIN: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(
         ```\n\
          Fix: Call macro with correct number of arguments.",
     );
+    m.insert(
+        "E0011",
+        "Expected printable but found ... \n\
+        Compiler expects something that can be printed; something like number and string but bool for example isnt printable\n\
+        Example:\n\
+        ```
+        const b:bool = true;
+        writeLn!(b)
+        ```
+
+
+        ");
     m
 });

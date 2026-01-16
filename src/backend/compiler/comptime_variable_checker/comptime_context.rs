@@ -1,3 +1,4 @@
+use crate::backend::ast::statements::functions::args_node::FunctionArgs;
 use crate::backend::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType;
 use crate::backend::compiler::functions_compiler_context::CompileTimeFunctionForCheck;
 use crate::backend::errors::compiler::compiler_errors::CompileError;
@@ -63,8 +64,14 @@ impl CompileContext {
             return Err(CompileError::FunctionAlredyExists { name });
             
         }
+        else {
+            curren_fnc_scope.insert(name, fnc);
+            Ok(())
+        }
 
-        Ok(())
+    }
+    pub fn get_fn(&mut self,name:&str)->Result<CompileTimeFunctionForCheck,CompileError> {
+            self.functions.last_mut().unwrap().get(name).cloned().ok_or(CompileError::UnknownFunction { name: name.to_string() })        
     }
 }
 

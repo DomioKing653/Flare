@@ -4,12 +4,12 @@ use crate::backend::{
     },
     buildin_macros::get_macro::MacroManager,
     compiler::{
-        comptime_variable_checker::{
+         comptime_variable_checker::{
             comptime_context::{CompileContext, ComptimeVariable},
             comptime_value_for_check::ComptimeValueType::{
                 self, Array, Bool, Float, Int, StringValue, Void,
             },
-        }, functions_compiler_context::{CompileTimeFunctionForCheck}, instructions::Instructions::{
+        }, functions_compiler_context::CompileTimeFunctionForCheck, instructions::Instructions::{
             self, Add, Div, Halt, LoadVar, Mul, PushBool, PushNumber, PushString, Sub,
         }, optimization::optimze::optimize
     },
@@ -381,9 +381,25 @@ impl Compilable for FunctionCallNode {
                 result
             }
             CallType::Fn => {
-                let called_function:CompileTimeFunctionForCheck;
-                todo!()
-
+                let called_function:CompileTimeFunctionForCheck = compiler.context.get_fn(&self.name)?;
+                if self.args.len()!=called_function.args.len() {
+                    return Err(CompileError::UnexpectedFunctionArguments { name: self.name.clone(), expected: called_function.args.len(), found: self.args.len() });
+                }
+                compiler.context.enter_scope();
+                for (called_arg, fnc_arg) in self.args.iter().zip(called_function.args.iter()) {
+                    let called_args_type = called_arg.compile(compiler)?;
+                    if called_args_type != fnc_arg.argument_type {
+                        return Err(TypeMismatch { expected: fnc_arg.argument_type.clone(), found: called_args_type });
+                       
+                    }
+                    compiler.context.add_variable(fnc_arg.name.clone(), ComptimeVariable { value_type: called_args_type, is_const: false })?; 
+                }
+                for statement in called_function.body  {
+                    statement.compile(compiler)?;
+                    
+                }
+                compiler.context.exit_scope(); 
+                Ok(Void)
             }
         }
     }
