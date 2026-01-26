@@ -3,10 +3,11 @@ while(i<10){
     writeLn!(i)
     i = i +  1;
 }
+var x = 0;
 if (true){
-    var x = 0;
+    x = 3;
 }
 else{
     x = 5;
 }
-x
+

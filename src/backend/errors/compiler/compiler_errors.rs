@@ -44,6 +44,6 @@ pub enum CompileError {
     FunctionAlredyExists{name:String},
     #[error("[E0013]Unknown function:{name}")]
     UnknownFunction{name:String},
-    #[error("[E0014]Unexpected number of arguments at function {name}: expected{expected} but got{found}")]
+    #[error("[E0014]Unexpected number of arguments at function {name}: expected {expected} but got {found}")]
     UnexpectedFunctionArguments{name:String,expected:usize,found:usize}
 }

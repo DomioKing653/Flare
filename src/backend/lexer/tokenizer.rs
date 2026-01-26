@@ -6,7 +6,7 @@ use crate::{
     backend::lexer::tokens::{
         Token, TokenKind,
         TokenKind::{
-            CLOSINGBRACE, COLON, CONST, DIVIDE, ELSE, EOF, EQUAL, FLOAT, FN, IDENTIFIER, IF,
+            CLOSINGBRACE, COLON, CONST, DIVIDE, ELSE, EOF, EQUAL, FLOAT, FNC, IDENTIFIER, IF,
             LEFTPAREN, LOOP, MINUS, MODULO, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STR, TIMES, VAR,
             WHILE,AS
         },
@@ -176,8 +176,8 @@ impl Tokenizer {
                 token_kind: VAR,
                 token_value: text_buffer,
             },
-            "fn" => Token {
-                token_kind: FN,
+            "fnc" => Token {
+                token_kind: FNC,
                 token_value: text_buffer,
             },
             "str" => Token {

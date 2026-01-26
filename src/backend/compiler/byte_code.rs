@@ -388,8 +388,10 @@ impl Compilable for FunctionCallNode {
                 compiler.context.enter_scope();
                 for (called_arg, fnc_arg) in self.args.iter().zip(called_function.args.iter()) {
                     let called_args_type = called_arg.compile(compiler)?;
-                    if called_args_type != fnc_arg.argument_type {
-                        return Err(TypeMismatch { expected: fnc_arg.argument_type.clone(), found: called_args_type });
+                    compiler.out.push(Instructions::SaveVar(fnc_arg.name.clone()));
+                    let final_fnc_type = CompileContext::get_type(&fnc_arg.argument_type)?;
+                    if called_args_type != final_fnc_type {
+                        return Err(TypeMismatch { expected: final_fnc_type, found: called_args_type });
                        
                     }
                     compiler.context.add_variable(fnc_arg.name.clone(), ComptimeVariable { value_type: called_args_type, is_const: false })?; 

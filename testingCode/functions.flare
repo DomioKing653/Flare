@@ -1,1 +1,5 @@
+fnc hi_mom(name:string,idk:flt):void{
+  writeLn!(name)
+}
 hi_mom("Hello")
+name

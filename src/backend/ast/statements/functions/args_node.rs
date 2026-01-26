@@ -1,8 +1,5 @@
-use crate::backend::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType::{
-    self,
-};
 #[derive(Debug,Clone)]
 pub struct FunctionArgs {
-    pub argument_type: ComptimeValueType,
+    pub argument_type: String,
     pub name: String,
 }

@@ -1,23 +1,8 @@
 use crate::backend::{
-    ast::nodes::CallType::{Fn, Macro},
-    ast::nodes::{
-        BinaryOpNode, FloatNode, NumberNode, ProgramNode, StringNode, VariableAccessNode,
-        VariableDefineNode,
-    },
-    ast::nodes::{BoolNode, FunctionCallNode, VariableAssignNode},
-    ast::statements::if_statement::IfStatement,
-    ast::statements::while_statement::WhileStatement,
+    ast::{nodes::{BinaryOpNode, BoolNode, CallType::{Fn, Macro}, FloatNode, FunctionCallNode, NumberNode, ProgramNode, StringNode, VariableAccessNode, VariableAssignNode, VariableDefineNode}, statements::{functions::{args_node::FunctionArgs, function_nodes::FunctionDefineNode}, if_statement::IfStatement, while_statement::WhileStatement}},
     compiler::byte_code::Compilable,
-    errors::parser_errors::{ParserError, ParserError::UnexpectedToken},
-    lexer::tokens::TokenKind::{COMMA, FALSE, SEMICOLON, TRUE},
-    lexer::tokens::{
-        Token,
-        TokenKind::{
-            self, CLOSINGBRACE, COLON, CONST, DIVIDE, ELSE, EOF, EQUAL, FLOAT, GREATER, IDENTIFIER,
-            IF, LEFTPAREN, LESS, MINUS, MODULO, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, STRING,
-            TIMES, VALUE, VAR, WHILE
-        },
-    },
+    errors::parser_errors::ParserError::{self, UnexpectedToken},
+    lexer::tokens::{Token, TokenKind::{self, CLOSINGBRACE, COLON, COMMA, CONST, DIVIDE, ELSE, EOF, EQUAL, FALSE, FLOAT, FNC, GREATER, IDENTIFIER, IF, LEFTPAREN, LESS, MINUS, MODULO, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, SEMICOLON, STRING, TIMES, TRUE, VALUE, VAR, WHILE}},
 };
 
 pub struct Parser {
@@ -124,6 +109,58 @@ impl Parser {
                 }
                 self.expect(CLOSINGBRACE)?;
                 return Ok(Box::new(WhileStatement { condition, body }));
+            }
+            FNC=>{
+                let mut args = Vec::new();
+                self.advance();//FN
+                let id = self.expect(IDENTIFIER)?;
+                self.expect(LEFTPAREN)?;
+                if self.current_token().token_kind!=RIGHTPAREN {
+
+                    loop {
+                        let arg_name = self.expect(IDENTIFIER)?;
+                        self.expect(COLON)?;
+                        let arg_type = self.expect(IDENTIFIER)?;
+
+                        args.push(FunctionArgs {
+                            name: arg_name.token_value,
+                            argument_type: arg_type.token_value,
+                        });
+
+                        if self.current_token().token_kind == COMMA {
+                            self.advance();
+                            continue;
+                        }
+
+                        break;
+                    }
+                    
+                }
+                self.expect(RIGHTPAREN)?;
+                let reurn_type = if self.current_token().token_kind == COLON {
+                    self.advance();
+                    Some(self.expect(IDENTIFIER)?.token_value)
+                }else {
+                    None
+                };
+                self.expect(OPENINGBRACE)?;
+
+                let mut body:Vec<Box<dyn Compilable>> = Vec::new();
+                while self.current_token().token_kind!=CLOSINGBRACE {
+                    body.push(self.parse_stmt()?); 
+                }
+                self.expect(CLOSINGBRACE)?;
+                println!("{:?}",&reurn_type);
+
+                Ok(Box::new(FunctionDefineNode{
+                    id:id.token_value,
+                    return_type:reurn_type,
+                    body,
+                    args
+
+                }))
+
+
             }
             _ => self.parse_expr(),
         }

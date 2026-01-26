@@ -27,7 +27,7 @@ pub enum TokenKind {
     TRUE,
     FALSE,
     //KEYWORDS
-    FN,
+    FNC,
     VAR,
     CONST,
     STR,
