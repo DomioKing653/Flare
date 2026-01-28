@@ -1,0 +1,15 @@
+const size:numb = 10;
+var it:numb = 0;
+while (it < size)
+{
+	it = it + 1;
+	var it2:numb = 0;
+	while (it2 < size)
+	{
+		var rem:numb = 0;
+		it2 = it2 + 1;		
+		rem = it2 % 4;
+		write!(rem)
+	}
+	writeLn!("")
+}
