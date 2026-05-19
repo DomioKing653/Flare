@@ -80,7 +80,7 @@ fn run_cli() -> Result<(), CommandLineError> {
                         .map_err(|_| CommandLineError::ErrorCreatingFile)?;
 
                     main_file
-                        .write_all(b"writeLn!(\"Hello world\");\n")
+                        .write_all(b"writeLn!(\"Hello, world!\");\n")
                         .unwrap();
                 }
             }

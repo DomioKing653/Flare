@@ -161,7 +161,6 @@ impl Compiler {
             }
             // Cleaning up stuff
             self.out.push(Instructions::JumpOnLastOnStack);
-            self.context.exit_function_scope();
             self.context.curren_return_type = Void;
             fn_jmp_addresses.insert(name, length);
         }
@@ -907,14 +906,25 @@ impl Compilable for ReturnNode {
         Ok(())
     }
     fn compile(&mut self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
+        // println!("{}", format!("{}", compiler.context.function_depth));
         if compiler.context.function_depth > 0 {
             if let Some(mut r) = self.returns.clone() {
                 let type_of_ret = r.compile(compiler)?;
                 if type_of_ret != compiler.context.curren_return_type {
-                    panic!("idk u stupid");
+                    return Err(TypeMismatch {
+                        expected: compiler.context.curren_return_type.clone(),
+                        found: type_of_ret,
+                    });
                 }
             } else if compiler.context.curren_return_type != Void {
                 panic!("stupid idiot")
+            }
+
+            let var_to_drop = compiler.context.exit_function_scope();
+            for map in &var_to_drop {
+                for var_name in map.keys() {
+                    compiler.out.push(Instructions::Drop(var_name.to_string()));
+                }
             }
             compiler.out.push(Instructions::JumpOnLastOnStack);
         } else {

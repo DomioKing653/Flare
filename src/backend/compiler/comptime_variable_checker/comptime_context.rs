@@ -7,18 +7,18 @@ use crate::backend::compiler::comptime_variable_checker::comptime_value_for_chec
 use crate::backend::errors::compiler::compiler_errors::CompileError::UndefinedType;
 use std::collections::HashMap;
 use crate::backend::ast::statements::structs::ComptimeStructForCheck;
-
+use crate::tools::custom_truncate::truncate_and_return;
 pub struct CompileContext {
     variables: HashMap<String, ComptimeVariable>,
     pub functions: HashMap<String, CompileTimeFunctionForCheck>,
     pub scopes: Vec<HashMap<String, ComptimeVariable>>,
     pub structs: Vec<HashMap<String, ComptimeStructForCheck>>,
-    types: Vec<String>,
     pub function_depth: usize,
     pub curren_return_type: ComptimeValueType,
     pub current_function_vars: Vec<ComptimeVariable>,
     is_in_function_contex: bool,
     last_fn_context: usize,
+    types: Vec<String>,
 }
 
 impl CompileContext {
@@ -78,13 +78,11 @@ impl CompileContext {
 
         self.scopes.push(HashMap::new());
     }
-
-    pub fn exit_function_scope(&mut self) {
+    pub fn exit_function_scope(&mut self) -> Vec<HashMap<String, ComptimeVariable>> {
         self.function_depth -= 1;
-
-        self.scopes.truncate(self.last_fn_context);
-
+        let vars_to_remove = truncate_and_return(&mut self.scopes, self.last_fn_context);
         self.is_in_function_contex = self.function_depth > 0;
+        vars_to_remove
     }
 
     pub fn add_variable(

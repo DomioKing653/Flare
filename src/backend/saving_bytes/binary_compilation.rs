@@ -75,5 +75,5 @@ fn find_libvm_runtime(_start: &Path) -> Option<String> {
         }
     }
 
-    None
+    None // Fallback if nothing is found
 }
