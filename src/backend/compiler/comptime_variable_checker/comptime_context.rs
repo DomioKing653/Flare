@@ -88,6 +88,10 @@ impl CompileContext {
         vars_to_remove
     }
 
+    pub fn get_vars_to_drop(&self) -> Vec<HashMap<String, ComptimeVariable>> {
+        self.scopes[self.last_fn_context..].to_vec()
+    }
+
     pub fn add_variable(
         &mut self,
         name: String,
@@ -151,6 +155,7 @@ impl Default for CompileContext {
     }
 }
 
+#[derive(Clone)]
 pub struct ComptimeVariable {
     pub value_type: ComptimeValueType,
     pub tag: String,

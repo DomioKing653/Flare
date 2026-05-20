@@ -154,16 +154,15 @@ impl Compiler {
             for instruction in &mut function.body {
                 instruction.compile(self)?;
             }
-            // Droping args after end of the function
-            for arg in &function.args {
-                self.out
-                    .push(Instructions::Drop(format!("{}_{}", arg.name, name)));
+            // Droping all variables in function scope
+            let vars_to_drop = self.context.exit_function_scope();
+            for map in &vars_to_drop {
+                for var_info in map.values() {
+                    self.out.push(Instructions::Drop(var_info.tag.clone()));
+                }
             }
             // Cleaning up stuff
             self.out.push(Instructions::JumpOnLastOnStack);
-            //NOTE:We are calling this every time for moments when there are no explicit returns, to
-            //clean the memory
-            self.context.enter_function_scope();
             self.context.current_return_type = Void;
             fn_jmp_addresses.insert(name, length);
         }
@@ -829,9 +828,6 @@ impl Compilable for FunctionCallNode {
                 Ok(result)
             }
             CallType::Fn => {
-                if compiler.context.is_in_function_contex() {
-                    compiler.context.enter_function_scope();
-                }
                 let called_function: CompileTimeFunctionForCheck =
                     compiler.context.get_fn(&self.name)?;
                 if self.args.len() != called_function.args.len() {
@@ -912,7 +908,6 @@ impl Compilable for ReturnNode {
         Ok(())
     }
     fn compile(&mut self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-        println!("{}", format!("{}", compiler.context.function_depth));
         if compiler.context.function_depth > 0 {
             if let Some(mut r) = self.returns.clone() {
                 let type_of_ret = r.compile(compiler)?;
@@ -926,10 +921,10 @@ impl Compilable for ReturnNode {
                 panic!("stupid idiot")
             }
 
-            let var_to_drop = compiler.context.exit_function_scope();
+            let var_to_drop = compiler.context.get_vars_to_drop();
             for map in &var_to_drop {
-                for var_name in map.keys() {
-                    compiler.out.push(Instructions::Drop(var_name.to_string()));
+                for var_info in map.values() {
+                    compiler.out.push(Instructions::Drop(var_info.tag.clone()));
                 }
             }
             compiler.out.push(Instructions::JumpOnLastOnStack);
