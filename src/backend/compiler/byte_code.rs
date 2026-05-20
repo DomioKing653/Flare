@@ -161,6 +161,9 @@ impl Compiler {
             }
             // Cleaning up stuff
             self.out.push(Instructions::JumpOnLastOnStack);
+            //NOTE:We are calling this every time for moments when there are no explicit returns, to
+            //clean the memory
+            self.context.enter_function_scope();
             self.context.curren_return_type = Void;
             fn_jmp_addresses.insert(name, length);
         }
