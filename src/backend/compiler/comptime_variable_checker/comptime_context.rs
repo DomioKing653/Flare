@@ -14,7 +14,7 @@ pub struct CompileContext {
     pub scopes: Vec<HashMap<String, ComptimeVariable>>,
     pub structs: Vec<HashMap<String, ComptimeStructForCheck>>,
     pub function_depth: usize,
-    pub curren_return_type: ComptimeValueType,
+    pub current_return_type: ComptimeValueType,
     pub current_function_vars: Vec<ComptimeVariable>,
     is_in_function_contex: bool,
     last_fn_context: usize,
@@ -30,11 +30,14 @@ impl CompileContext {
             scopes: vec![HashMap::new()],
             types: Vec::new(),
             structs: Vec::new(),
-            curren_return_type: Void,
+            current_return_type: Void,
             is_in_function_contex: false,
             last_fn_context: 0,
             function_depth: 0,
         }
+    }
+    pub fn is_in_function_contex(&self) -> bool {
+        self.is_in_function_contex
     }
 
     pub fn add_type(&mut self, type_to_add: String) -> Result<(), CompileError> {

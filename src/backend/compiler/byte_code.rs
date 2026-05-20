@@ -149,7 +149,7 @@ impl Compiler {
                     },
                 )?;
             }
-            self.context.curren_return_type = function.return_type;
+            self.context.current_return_type = function.return_type;
             // Compiling function body
             for instruction in &mut function.body {
                 instruction.compile(self)?;
@@ -164,7 +164,7 @@ impl Compiler {
             //NOTE:We are calling this every time for moments when there are no explicit returns, to
             //clean the memory
             self.context.enter_function_scope();
-            self.context.curren_return_type = Void;
+            self.context.current_return_type = Void;
             fn_jmp_addresses.insert(name, length);
         }
         // Setting up proper jumps for all function calls
@@ -829,6 +829,9 @@ impl Compilable for FunctionCallNode {
                 Ok(result)
             }
             CallType::Fn => {
+                if compiler.context.is_in_function_contex() {
+                    compiler.context.enter_function_scope();
+                }
                 let called_function: CompileTimeFunctionForCheck =
                     compiler.context.get_fn(&self.name)?;
                 if self.args.len() != called_function.args.len() {
@@ -909,17 +912,17 @@ impl Compilable for ReturnNode {
         Ok(())
     }
     fn compile(&mut self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-        // println!("{}", format!("{}", compiler.context.function_depth));
+        println!("{}", format!("{}", compiler.context.function_depth));
         if compiler.context.function_depth > 0 {
             if let Some(mut r) = self.returns.clone() {
                 let type_of_ret = r.compile(compiler)?;
-                if type_of_ret != compiler.context.curren_return_type {
+                if type_of_ret != compiler.context.current_return_type {
                     return Err(TypeMismatch {
-                        expected: compiler.context.curren_return_type.clone(),
+                        expected: compiler.context.current_return_type.clone(),
                         found: type_of_ret,
                     });
                 }
-            } else if compiler.context.curren_return_type != Void {
+            } else if compiler.context.current_return_type != Void {
                 panic!("stupid idiot")
             }
 

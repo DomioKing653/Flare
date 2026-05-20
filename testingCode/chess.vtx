@@ -6,6 +6,7 @@ fnc printunderscores(count:int):void{
 		write!("_");
 	}
 	writeLn!("");
+	return;
 }
 const size:int = 10;
 printunderscores(size);
