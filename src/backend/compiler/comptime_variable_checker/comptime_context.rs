@@ -5,7 +5,6 @@ use crate::backend::compiler::comptime_variable_checker::comptime_value_for_chec
     Bool, Int, StringValue, Void, Float
 };
 use crate::backend::errors::compiler::compiler_errors::CompileError::UndefinedType;
-use crate::backend::lexer::tokens::Token;
 use std::collections::HashMap;
 use crate::backend::ast::statements::structs::ComptimeStructForCheck;
 use crate::tools::custom_truncate::truncate_and_return;

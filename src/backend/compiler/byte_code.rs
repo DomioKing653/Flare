@@ -1,12 +1,10 @@
 use crate::backend::{
-    ast::{
-        nodes::{
-            ArrayNode, BinaryOpNode, BoolNode,
-            CallType::{self, Macro},
-            FloatNode, FunctionCallNode, ImportNode, LoopNode, NumberNode, PrefixExpressionNode,
-            ProgramNode, ReturnNode, StringNode, VariableAccessNode, VariableAssignNode,
-            VariableDefineNode,
-        },
+    ast::nodes::{
+        ArrayNode, BinaryOpNode, BoolNode,
+        CallType::{self, Macro},
+        FloatNode, FunctionCallNode, ImportNode, LoopNode, NumberNode, PrefixExpressionNode,
+        ProgramNode, ReturnNode, StringNode, VariableAccessNode, VariableAssignNode,
+        VariableDefineNode,
     },
     buildin_macros::get_macro::MacroManager,
     compiler::{
@@ -962,7 +960,7 @@ impl Compilable for ImportNode {
             .context
             .parsed_files
             .get(&self.module)
-            .unwrap_or_else(|| panic!("Cannot find pre-parsed module {}", self.module))
+            .unwrap_or_else(|| panic!("Cannot find module {}", self.module))
             .clone();
 
         /*

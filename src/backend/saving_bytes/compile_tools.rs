@@ -232,12 +232,28 @@ pub async fn build_prj(dir: String, out: String, debug: bool) {
     /*
      * Lexing phase
      */
+    let pb_lexing = create_spinner("Lexing project".to_string());
+    let lex_start = Instant::now();
     let tokens_map = lex_project_parallel(&dir, &main_vtx_files).await;
+    pb_lexing.finish_and_clear();
+    println!(
+        "\x1b[32m✔\x1b[0m {:<50} in {:.4}s",
+        "Lexed project",
+        lex_start.elapsed().as_secs_f32()
+    );
 
     /*
      * Parsing phase
      */
+    let pb_parsing = create_spinner("Parsing project".to_string());
+    let parse_start = Instant::now();
     let parsed_ast_map = parse_project_parallel(&tokens_map).await;
+    pb_parsing.finish_and_clear();
+    println!(
+        "\x1b[32m✔\x1b[0m {:<50} in {:.4}s",
+        "Parsed project",
+        parse_start.elapsed().as_secs_f32()
+    );
 
     /*
      * Compile Phase
