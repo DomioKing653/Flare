@@ -11,9 +11,4 @@
 /build.cmd
 /out
 src/runtime_lib/target/
-# profiling
-flamegraph.svg
-profile_flamegraph.svg
-chess_flamegraph.svg
-perf.data
-perf.data.old
+/tmp_launcher.zig
