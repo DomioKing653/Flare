@@ -20,7 +20,7 @@ Before you start, make sure you have installed:
 
 First, clone the repository and navigate into it:
 
-```bash
+```shell
 git clone https://github.com/DomioKing653/Vertex
 cd Vertex
 ```
