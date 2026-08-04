@@ -22,7 +22,7 @@ This is the same approach most of the Rust ecosystem uses (`serde`, `tokio`, `ra
 **In short:**
 - If you want the simplest possible license with no extra machinery, pick **MIT**.
 - If you (or your company) want an explicit patent grant and protection from patent litigation, pick **Apache-2.0**.
-- If you're bundling rl-lang into a GPLv2 project, **MIT** is the one that's compatible - Apache-2.0 is not.
+- If you're bundling Vertex into a GPLv2 project, **MIT** is the one that's compatible - Apache-2.0 is not.
 
 Whichever you pick, you're covered - you don't need permission from us, and you don't need to ask which one is "correct" for your use case. That's the entire point of offering both.
 
