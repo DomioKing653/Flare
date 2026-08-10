@@ -603,12 +603,8 @@ impl Compilable for VariableDefineNode {
     fn my_type(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         let inferred_type = if let Some(value) = &self.value {
             Some(value.my_type(compiler)?)
-        } else if self.value_type.is_some() {
-            Some(
-                compiler
-                    .context
-                    .get_type(&self.value_type.as_ref().unwrap())?,
-            )
+        } else if let Some(existing_value_type) = &self.value_type {
+            Some(compiler.context.get_type(existing_value_type.as_ref())?)
         } else {
             None
         };
